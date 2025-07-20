@@ -1,18 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-interface iTunesTrack {
-  trackId: number;
-  trackName: string;
-  artistName: string;
-  collectionName: string;
-  previewUrl?: string;
-  artworkUrl100?: string;
-  artworkUrl60?: string;
-}
-
-interface iTunesSearchResponse {
-  results: iTunesTrack[];
-}
+import { iTunesTrack, iTunesSearchResponse } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {

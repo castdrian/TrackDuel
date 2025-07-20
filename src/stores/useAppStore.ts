@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { BattleTrack, Battle, Playlist } from '@/types/spotify';
+import { BattleTrack, Battle, Playlist } from '@/types';
 
 interface AppState {
   // Current playlist being battled

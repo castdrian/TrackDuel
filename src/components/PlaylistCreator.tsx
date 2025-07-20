@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAppStore } from '@/stores/useAppStore';
-import { BattleTrack, Playlist } from '@/types/spotify';
+import { BattleTrack, Playlist } from '@/types';
 import {
 	PlusIcon,
 	TrashIcon,
