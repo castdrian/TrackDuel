@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { useAppStore } from '@/stores/useAppStore';
 import { BattleTrack } from '@/types/spotify';
 import {
@@ -9,7 +10,7 @@ import {
 	SpeakerWaveIcon,
 	HeartIcon as HeartSolid
 } from '@heroicons/react/24/solid';
-import { HeartIcon as HeartOutline, XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
@@ -214,9 +215,11 @@ export function BattleArena() {
 					>
 						{/* Album Art */}
 						<div className="relative mb-4">
-							<img
+							<Image
 								src={track.image_url || '/placeholder-album.svg'}
 								alt={track.album}
+								width={400}
+								height={400}
 								className="w-full aspect-square object-cover rounded-lg"
 							/>
 
@@ -295,7 +298,7 @@ export function BattleArena() {
 			<div className="bg-white/5 backdrop-blur-lg rounded-xl p-4">
 				<div className="grid grid-cols-2 gap-4 text-center text-sm">
 					<div>
-						<p className="text-gray-400">"{track1.name}" Stats</p>
+						<p className="text-gray-400">&quot;{track1.name}&quot; Stats</p>
 						<p className="text-white">
 							{track1.wins}W - {track1.losses}L
 							{track1.battles > 0 && (
@@ -306,7 +309,7 @@ export function BattleArena() {
 						</p>
 					</div>
 					<div>
-						<p className="text-gray-400">"{track2.name}" Stats</p>
+						<p className="text-gray-400">&quot;{track2.name}&quot; Stats</p>
 						<p className="text-white">
 							{track2.wins}W - {track2.losses}L
 							{track2.battles > 0 && (

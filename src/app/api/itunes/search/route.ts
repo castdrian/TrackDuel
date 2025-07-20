@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+interface iTunesTrack {
+  trackId: number;
+  trackName: string;
+  artistName: string;
+  collectionName: string;
+  previewUrl?: string;
+  artworkUrl100?: string;
+  artworkUrl60?: string;
+}
+
+interface iTunesSearchResponse {
+  results: iTunesTrack[];
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -23,12 +37,12 @@ export async function GET(request: NextRequest) {
       throw new Error('Failed to search tracks');
     }
 
-    const searchData = await searchResponse.json();
+    const searchData: iTunesSearchResponse = await searchResponse.json();
     
     console.log('iTunes search response:', JSON.stringify(searchData, null, 2));
     
     // Transform the data to match our BattleTrack interface
-    const tracks = searchData.results.map((track: any) => {
+    const tracks = searchData.results.map((track: iTunesTrack) => {
       // iTunes provides artwork URLs that can be scaled by changing the size in the URL
       // artworkUrl100 can be changed to higher resolutions like 600x600
       let highResImage = track.artworkUrl100;
@@ -50,7 +64,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    console.log('Transformed tracks:', tracks.map((t: any) => ({ name: t.name, preview_url: t.preview_url })));
+    console.log('Transformed tracks:', tracks.map((t) => ({ name: t.name, preview_url: t.preview_url })));
 
     return NextResponse.json({ tracks });
   } catch (error) {

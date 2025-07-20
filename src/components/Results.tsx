@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useAppStore } from '@/stores/useAppStore';
 import {
 	TrophyIcon,
-	ShareIcon,
 	ArrowLeftIcon,
 	ClipboardDocumentIcon,
 	PlayIcon
@@ -70,7 +70,7 @@ export function Results() {
 				try {
 					document.execCommand('copy');
 					toast.success('Rankings copied to clipboard!');
-				} catch (err) {
+				} catch {
 					toast.error('Please manually copy the text');
 				}
 
@@ -180,9 +180,11 @@ export function Results() {
 							</div>
 
 							{/* Album Art */}
-							<img
+							<Image
 								src={track.image_url || '/placeholder-album.svg'}
 								alt={track.album}
+								width={48}
+								height={48}
 								className="w-12 h-12 rounded object-cover"
 							/>
 

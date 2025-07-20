@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAppStore } from '@/stores/useAppStore';
 import { BattleTrack, Playlist } from '@/types/spotify';
 import {
@@ -282,9 +283,11 @@ export function PlaylistCreator() {
 									onClick={() => addTrackToPlaylist(track)}
 									className="w-full p-3 text-left hover:bg-white/10 transition-colors flex items-center gap-3"
 								>
-									<img
+									<Image
 										src={track.image_url}
 										alt={track.album}
+										width={40}
+										height={40}
 										className="w-10 h-10 rounded object-cover"
 									/>
 									<div>
@@ -309,9 +312,11 @@ export function PlaylistCreator() {
 							{tracks.map(track => (
 								<div key={track.id} className="bg-white/5 rounded-lg p-3 flex items-center justify-between">
 									<div className="flex items-center gap-3">
-										<img
+										<Image
 											src={track.image_url}
 											alt={track.album}
+											width={40}
+											height={40}
 											className="w-10 h-10 rounded object-cover"
 										/>
 										<div>
