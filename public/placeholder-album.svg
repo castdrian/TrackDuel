@@ -1,0 +1,10 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<rect width="300" height="300" fill="#1F2937" />
+	<path
+		d="M150 100C172.091 100 190 117.909 190 140V160C190 182.091 172.091 200 150 200C127.909 200 110 182.091 110 160V140C110 117.909 127.909 100 150 100Z"
+		fill="#6B7280" />
+	<circle cx="150" cy="150" r="30" fill="#374151" />
+	<circle cx="150" cy="150" r="8" fill="#1F2937" />
+	<text x="150" y="230" text-anchor="middle" fill="#9CA3AF" font-family="system-ui" font-size="14">No
+		Album Art</text>
+</svg>
