@@ -22,8 +22,8 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 
 				if (textWidth > containerWidth) {
 					setShouldScroll(true);
-					// Calculate duration based on text width and speed
-					const duration = (textWidth + containerWidth) / speed;
+					// Calculate duration based on text width only (since we're looping continuously)
+					const duration = textWidth / speed;
 					setAnimationDuration(duration);
 				} else {
 					setShouldScroll(false);
@@ -50,18 +50,25 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 			ref={containerRef}
 			className={`relative overflow-hidden whitespace-nowrap ${className}`}
 		>
-			<span
-				ref={textRef}
-				className={`inline-block ${shouldScroll ? 'animate-marquee' : ''}`}
-				style={{
-					animationDuration: shouldScroll ? `${animationDuration}s` : undefined,
-					animationTimingFunction: 'linear',
-					animationIterationCount: 'infinite',
-					animationDelay: '1s', // Wait 1 second before starting scroll
-				}}
-			>
-				{text}
-			</span>
+			{shouldScroll ? (
+				<div
+					className="flex animate-marquee"
+					style={{
+						animationDuration: `${animationDuration}s`,
+						animationTimingFunction: 'linear',
+						animationIterationCount: 'infinite',
+					}}
+				>
+					<span ref={textRef} className="flex-shrink-0 pr-8">
+						{text}
+					</span>
+					<span className="flex-shrink-0 pr-8">{text}</span>
+				</div>
+			) : (
+				<span ref={textRef} className="inline-block">
+					{text}
+				</span>
+			)}
 		</div>
 	);
 }
