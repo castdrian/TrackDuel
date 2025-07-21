@@ -9,7 +9,9 @@ import {
 	TrashIcon,
 	PlayIcon,
 	MagnifyingGlassIcon,
-	PencilIcon
+	PencilIcon,
+	ArrowDownTrayIcon,
+	ArrowUpTrayIcon
 } from '@heroicons/react/24/outline';
 import { ListBulletIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
@@ -187,15 +189,191 @@ export function PlaylistCreator() {
 		}, 100);
 	};
 
+	// Export playlist data as JSON
+	const exportPlaylist = (playlist: Playlist) => {
+		const exportData = {
+			version: "1.0",
+			exportedAt: new Date().toISOString(),
+			playlist: {
+				id: playlist.id,
+				name: playlist.name,
+				tracks: playlist.tracks.map(track => ({
+					id: track.id,
+					name: track.name,
+					artist: track.artist,
+					album: track.album,
+					preview_url: track.preview_url,
+					image_url: track.image_url,
+					wins: track.wins,
+					losses: track.losses,
+					battles: track.battles,
+					score: track.score
+				})),
+				battles: playlist.battles,
+				isComplete: playlist.isComplete,
+				createdAt: playlist.createdAt,
+				updatedAt: playlist.updatedAt
+			}
+		};
+
+		const dataStr = JSON.stringify(exportData, null, 2);
+		const dataBlob = new Blob([dataStr], { type: 'application/json' });
+		
+		const link = document.createElement('a');
+		link.href = URL.createObjectURL(dataBlob);
+		link.download = `trackduel-${playlist.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		
+		toast.success(`Exported "${playlist.name}" playlist`);
+	};
+
+	// Export all playlists
+	const exportAllPlaylists = () => {
+		const exportData = {
+			version: "1.0",
+			exportedAt: new Date().toISOString(),
+			playlists: playlists.map(playlist => ({
+				id: playlist.id,
+				name: playlist.name,
+				tracks: playlist.tracks.map(track => ({
+					id: track.id,
+					name: track.name,
+					artist: track.artist,
+					album: track.album,
+					preview_url: track.preview_url,
+					image_url: track.image_url,
+					wins: track.wins,
+					losses: track.losses,
+					battles: track.battles,
+					score: track.score
+				})),
+				battles: playlist.battles,
+				isComplete: playlist.isComplete,
+				createdAt: playlist.createdAt,
+				updatedAt: playlist.updatedAt
+			}))
+		};
+
+		const dataStr = JSON.stringify(exportData, null, 2);
+		const dataBlob = new Blob([dataStr], { type: 'application/json' });
+		
+		const link = document.createElement('a');
+		link.href = URL.createObjectURL(dataBlob);
+		link.download = `trackduel-all-playlists-${new Date().toISOString().split('T')[0]}.json`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		
+		toast.success(`Exported ${playlists.length} playlists`);
+	};
+
+	// Import playlist(s) from JSON file
+	const importPlaylist = () => {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		input.onchange = (e) => {
+			const file = (e.target as HTMLInputElement).files?.[0];
+			if (!file) return;
+
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				try {
+					const content = e.target?.result as string;
+					const importData = JSON.parse(content);
+
+					// Validate import data structure
+					if (!importData.version) {
+						throw new Error('Invalid file format');
+					}
+
+					if (importData.playlist) {
+						// Single playlist import
+						const playlist = importData.playlist;
+						const importedPlaylist: Playlist = {
+							...playlist,
+							id: Date.now().toString(), // Generate new ID to avoid conflicts
+							createdAt: new Date(playlist.createdAt),
+							updatedAt: new Date()
+						};
+
+						addPlaylist(importedPlaylist);
+						toast.success(`Imported playlist "${playlist.name}"`);
+					} else if (importData.playlists) {
+						// Multiple playlists import
+						let importCount = 0;
+						for (const playlist of importData.playlists) {
+							const importedPlaylist: Playlist = {
+								...playlist,
+								id: (Date.now() + importCount).toString(), // Generate unique IDs
+								createdAt: new Date(playlist.createdAt),
+								updatedAt: new Date()
+							};
+							addPlaylist(importedPlaylist);
+							importCount++;
+						}
+						toast.success(`Imported ${importCount} playlists`);
+					} else {
+						throw new Error('No playlist data found in file');
+					}
+				} catch (error) {
+					console.error('Import error:', error);
+					toast.error('Failed to import playlist. Please check the file format.');
+				}
+			};
+			reader.readAsText(file);
+		};
+		input.click();
+	};
+
 	return (
 		<div className="space-y-6">
+			{/* Import Section - Always visible */}
+			{playlists.length === 0 && (
+				<div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 text-center">
+					<h2 className="text-xl font-bold text-white mb-4">Get Started</h2>
+					<p className="text-gray-300 mb-4">
+						Create your first playlist or import existing ones
+					</p>
+					<button
+						onClick={importPlaylist}
+						className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 mx-auto"
+					>
+						<ArrowUpTrayIcon className="w-5 h-5" />
+						Import Playlists
+					</button>
+				</div>
+			)}
+
 			{/* Existing Playlists */}
 			{playlists.length > 0 && (
 				<div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6">
-					<h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-						<ListBulletIcon className="w-6 h-6" />
-						Your Playlists
-					</h2>
+					<div className="flex items-center justify-between mb-4">
+						<h2 className="text-xl font-bold text-white flex items-center gap-2">
+							<ListBulletIcon className="w-6 h-6" />
+							Your Playlists
+						</h2>
+						<div className="flex items-center gap-2">
+							<button
+								onClick={importPlaylist}
+								className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+								title="Import Playlist"
+							>
+								<ArrowUpTrayIcon className="w-4 h-4" />
+								Import
+							</button>
+							<button
+								onClick={exportAllPlaylists}
+								className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+								title="Export All Playlists"
+							>
+								<ArrowDownTrayIcon className="w-4 h-4" />
+								Export All
+							</button>
+						</div>
+					</div>
 					<div className="grid gap-3">
 						{playlists.map(playlist => (
 							<div key={playlist.id} className="bg-white/10 rounded-lg p-4">
@@ -226,6 +404,13 @@ export function PlaylistCreator() {
 											title="Edit"
 										>
 											<PencilIcon className="w-4 h-4" />
+										</button>
+										<button
+											onClick={() => exportPlaylist(playlist)}
+											className="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-lg transition-colors"
+											title="Export Playlist"
+										>
+											<ArrowDownTrayIcon className="w-4 h-4" />
 										</button>
 										<button
 											onClick={() => handleDeletePlaylist(playlist.id, playlist.name)}
