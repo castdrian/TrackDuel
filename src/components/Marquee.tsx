@@ -22,7 +22,6 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 
 				if (textWidth > containerWidth) {
 					setShouldScroll(true);
-					// Calculate duration based on text width only (since we're looping continuously)
 					const duration = textWidth / speed;
 					setAnimationDuration(duration);
 				} else {
