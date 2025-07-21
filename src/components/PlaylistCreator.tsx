@@ -11,7 +11,8 @@ import {
 	MagnifyingGlassIcon,
 	PencilIcon,
 	ArrowDownTrayIcon,
-	ArrowUpTrayIcon
+	ArrowUpTrayIcon,
+	ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { ListBulletIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
@@ -32,7 +33,8 @@ export function PlaylistCreator() {
 		setCurrentBattle,
 		updatePlaylist,
 		deletePlaylist,
-		resetPlaylistBattles
+		resetPlaylistBattles,
+		adaptPlaylistBattles
 	} = useAppStore();
 
 	// Search for tracks using iTunes API
@@ -109,15 +111,19 @@ export function PlaylistCreator() {
 			return;
 		}
 
+		// First adapt the battles to handle track changes
+		adaptPlaylistBattles(editingPlaylist.id, tracks);
+
+		// Then update the playlist with the new name
 		const updatedPlaylist: Playlist = {
 			...editingPlaylist,
 			name: playlistName.trim(),
-			tracks,
+			tracks, // tracks will be updated by adaptPlaylistBattles
 			updatedAt: new Date()
 		};
 
 		updatePlaylist(updatedPlaylist);
-		toast.success('Playlist updated!');
+		toast.success('Playlist updated! Battle progress preserved.');
 		cancelEditing();
 	};
 
@@ -125,6 +131,13 @@ export function PlaylistCreator() {
 		if (confirm(`Are you sure you want to delete "${playlistName}"?`)) {
 			deletePlaylist(playlistId);
 			toast.success('Playlist deleted');
+		}
+	};
+
+	const handleResetPlaylist = (playlistId: string, playlistName: string) => {
+		if (confirm(`Are you sure you want to reset all battle progress for "${playlistName}"? This will clear all rankings and start fresh.`)) {
+			resetPlaylistBattles(playlistId);
+			toast.success('Battle progress reset! Ready to start fresh.');
 		}
 	}; const createPlaylist = () => {
 		if (!playlistName.trim()) {
@@ -412,6 +425,15 @@ export function PlaylistCreator() {
 										>
 											<ArrowDownTrayIcon className="w-4 h-4" />
 										</button>
+										{(playlist.battles.length > 0) && (
+											<button
+												onClick={() => handleResetPlaylist(playlist.id, playlist.name)}
+												className="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-lg transition-colors"
+												title="Reset Battle Progress"
+											>
+												<ArrowPathIcon className="w-4 h-4" />
+											</button>
+										)}
 										<button
 											onClick={() => handleDeletePlaylist(playlist.id, playlist.name)}
 											className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors"

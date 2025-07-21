@@ -150,10 +150,9 @@ export function BattleArena() {
 		setPlayingTrack(null);
 		setCurrentTime({});
 
-		// Clear current battle and return to playlist view
+		// Save progress and return to playlist view (don't clear playlist data)
 		setCurrentBattle(null);
-		setCurrentPlaylist(null);
-		// Removed toast for cancel as it's not necessary
+		toast.success('Battle progress saved');
 	};
 
 	const formatTime = (seconds: number) => {
@@ -192,7 +191,7 @@ export function BattleArena() {
 					<button
 						onClick={cancelBattle}
 						className="text-gray-400 hover:text-white transition-colors p-1"
-						title="Cancel Battle"
+						title="Save Progress & Exit"
 					>
 						<XMarkIcon className="w-5 h-5" />
 					</button>

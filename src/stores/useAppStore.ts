@@ -34,6 +34,7 @@ interface AppState {
   generateNextBattle: () => Battle | null;
   calculateRankings: () => BattleTrack[];
   resetPlaylistBattles: (playlistId: string) => void;
+  adaptPlaylistBattles: (playlistId: string, newTracks: BattleTrack[]) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -199,6 +200,94 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           playlists: state.playlists.map(p => p.id === playlistId ? resetPlaylist : p),
           currentPlaylist: state.currentPlaylist?.id === playlistId ? resetPlaylist : state.currentPlaylist
+        }));
+      },
+
+      adaptPlaylistBattles: (playlistId, newTracks) => {
+        const state = get();
+        const playlist = state.playlists.find(p => p.id === playlistId);
+        if (!playlist) return;
+
+        // Create a map of existing tracks by ID for easy lookup
+        const existingTracksMap = new Map(playlist.tracks.map(track => [track.id, track]));
+        
+        // Process new tracks: preserve existing stats or initialize new ones
+        const adaptedTracks = newTracks.map(track => {
+          const existingTrack = existingTracksMap.get(track.id);
+          if (existingTrack) {
+            // Track already exists, preserve its battle stats
+            return {
+              ...track,
+              wins: existingTrack.wins,
+              losses: existingTrack.losses,
+              battles: existingTrack.battles,
+              score: existingTrack.score
+            };
+          } else {
+            // New track, initialize with zero stats
+            return {
+              ...track,
+              wins: 0,
+              losses: 0,
+              battles: 0,
+              score: 0
+            };
+          }
+        });
+
+        // Filter battles to only include those between tracks that still exist
+        const newTrackIds = new Set(newTracks.map(track => track.id));
+        const validBattles = playlist.battles.filter(battle => 
+          newTrackIds.has(battle.track1.id) && newTrackIds.has(battle.track2.id)
+        );
+
+        // Recalculate stats based on valid battles
+        const statsMap = new Map(adaptedTracks.map(track => [track.id, { wins: 0, losses: 0, battles: 0 }]));
+        
+        validBattles.forEach(battle => {
+          if (battle.winner) {
+            const winnerId = battle.winner.id;
+            const loserId = battle.track1.id === winnerId ? battle.track2.id : battle.track1.id;
+            
+            if (statsMap.has(winnerId)) {
+              statsMap.get(winnerId)!.wins++;
+              statsMap.get(winnerId)!.battles++;
+            }
+            if (statsMap.has(loserId)) {
+              statsMap.get(loserId)!.losses++;
+              statsMap.get(loserId)!.battles++;
+            }
+          }
+        });
+
+        // Apply recalculated stats and scores
+        const finalTracks = adaptedTracks.map(track => {
+          const stats = statsMap.get(track.id)!;
+          return {
+            ...track,
+            wins: stats.wins,
+            losses: stats.losses,
+            battles: stats.battles,
+            score: stats.battles > 0 ? stats.wins / stats.battles : 0
+          };
+        });
+
+        // Check if battles are complete
+        const totalPossibleBattles = (finalTracks.length * (finalTracks.length - 1)) / 2;
+        const isComplete = validBattles.length >= totalPossibleBattles;
+
+        const adaptedPlaylist: Playlist = {
+          ...playlist,
+          tracks: finalTracks,
+          battles: validBattles,
+          isComplete,
+          updatedAt: new Date()
+        };
+
+        // Update the playlist
+        set((state) => ({
+          playlists: state.playlists.map(p => p.id === playlistId ? adaptedPlaylist : p),
+          currentPlaylist: state.currentPlaylist?.id === playlistId ? adaptedPlaylist : state.currentPlaylist
         }));
       }
     }),
