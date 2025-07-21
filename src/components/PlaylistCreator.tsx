@@ -72,14 +72,14 @@ export function PlaylistCreator() {
 			return;
 		}
 		setTracks([...tracks, track]);
-		toast.success(`Added "${track.name}"`);
+		// Removed toast for adding track - visual feedback is enough
 		setSearchQuery('');
 		setSearchResults([]);
 	};
 
 	const removeTrack = (trackId: string) => {
 		setTracks(tracks.filter(t => t.id !== trackId));
-		toast.success('Track removed');
+		// Removed toast for removing track - visual feedback is enough
 	};
 
 	const startEditingPlaylist = (playlist: Playlist) => {
@@ -166,7 +166,7 @@ export function PlaylistCreator() {
 	const selectExistingPlaylist = (playlist: Playlist) => {
 		setCurrentPlaylist(playlist);
 		// Just show rankings, don't start battles automatically
-		toast.success(`Viewing "${playlist.name}" rankings`);
+		// Removed toast for viewing rankings - user action is clear
 	};
 
 	const startPlaylistBattle = (playlist: Playlist) => {
@@ -182,8 +182,7 @@ export function PlaylistCreator() {
 			const battle = generateNextBattle();
 			if (battle) {
 				setCurrentBattle(battle);
-				const battleType = playlist.isComplete ? 'Restarted' : 'Continuing';
-				toast.success(`${battleType} battles for "${playlist.name}"`);
+				// Removed toast for starting battles - user action is clear
 			}
 		}, 100);
 	};

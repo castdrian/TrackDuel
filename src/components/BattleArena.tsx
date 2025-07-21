@@ -64,7 +64,7 @@ export function BattleArena() {
 		if (!audioRefs.current[trackId]) {
 			const audio = new Audio(track.preview_url);
 			audio.volume = 0.7;
-			// Remove crossOrigin for iTunes API
+			audio.preload = 'metadata';
 
 			audio.addEventListener('timeupdate', () => {
 				setCurrentTime(prev => ({
@@ -83,7 +83,6 @@ export function BattleArena() {
 
 			audio.addEventListener('error', (e) => {
 				console.error('Audio error:', e);
-				toast.error('Failed to load audio preview');
 				setPlayingTrack(null);
 			});
 
@@ -91,13 +90,23 @@ export function BattleArena() {
 		}
 
 		const audio = audioRefs.current[trackId];
-		audio.play().then(() => {
+		
+		// For mobile compatibility, handle the promise gracefully
+		const playPromise = audio.play();
+		
+		if (playPromise !== undefined) {
+			playPromise.then(() => {
+				setPlayingTrack(trackId);
+			}).catch((error) => {
+				console.error('Error playing audio:', error);
+				// Only show toast on first interaction error, not subsequent ones
+				if (error.name === 'NotAllowedError') {
+					toast.error('Tap again to play audio', { duration: 2000 });
+				}
+			});
+		} else {
 			setPlayingTrack(trackId);
-			toast.success(`Playing "${track.name}"`, { duration: 1000 });
-		}).catch((error) => {
-			console.error('Error playing audio:', error);
-			toast.error('Failed to play audio - try clicking to enable audio first');
-		});
+		}
 	};
 
 	const handleVote = (winnerId: string) => {
@@ -120,10 +129,11 @@ export function BattleArena() {
 			const nextBattle = generateNextBattle();
 			if (nextBattle) {
 				setCurrentBattle(nextBattle);
-				toast.success('Next battle!', { duration: 1000 });
+				// Removed toast for next battle
 			} else {
 				// All battles complete - clear current battle to show results
 				setCurrentBattle(null);
+				// Keep the completion toast as it's important
 				toast.success('🎉 All battles complete! Check out your rankings!');
 			}
 		}, 100);
@@ -143,7 +153,7 @@ export function BattleArena() {
 		// Clear current battle and return to playlist view
 		setCurrentBattle(null);
 		setCurrentPlaylist(null);
-		toast.success('Battle cancelled');
+		// Removed toast for cancel as it's not necessary
 	};
 
 	const formatTime = (seconds: number) => {
@@ -204,14 +214,14 @@ export function BattleArena() {
 				<p className="text-gray-300">Tap a song to preview, then pick the winner!</p>
 			</div>
 
-			<div className="grid md:grid-cols-2 gap-6">
+			<div className="grid grid-cols-2 gap-3 md:gap-6">
 				{[track1, track2].map((track, index) => (
 					<motion.div
 						key={track.id}
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: index * 0.1 }}
-						className="bg-white/10 backdrop-blur-lg rounded-2xl p-6"
+						className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 md:p-6"
 					>
 						{/* Album Art */}
 						<div className="relative mb-4">
@@ -257,10 +267,10 @@ export function BattleArena() {
 
 						{/* Track Info */}
 						<div className="text-center mb-4">
-							<h3 className="font-bold text-white text-lg mb-1 line-clamp-2">
+							<h3 className="font-bold text-white text-base md:text-lg mb-1 line-clamp-2">
 								{track.name}
 							</h3>
-							<p className="text-gray-300 text-sm">
+							<p className="text-gray-300 text-xs md:text-sm">
 								{track.artist}
 							</p>
 							<p className="text-gray-400 text-xs mt-1">
@@ -285,10 +295,11 @@ export function BattleArena() {
 						{/* Vote Button */}
 						<button
 							onClick={() => handleVote(track.id)}
-							className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-lg"
+							className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-2 md:py-3 px-4 md:px-6 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm md:text-lg"
 						>
-							<HeartSolid className="w-6 h-6" />
-							Choose This Song
+							<HeartSolid className="w-4 h-4 md:w-6 md:h-6" />
+							<span className="hidden sm:inline">Choose This Song</span>
+							<span className="sm:hidden">Choose</span>
 						</button>
 					</motion.div>
 				))}
