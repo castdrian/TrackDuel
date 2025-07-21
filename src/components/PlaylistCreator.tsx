@@ -275,26 +275,48 @@ export function PlaylistCreator() {
 
 					{/* Search Results */}
 					{searchResults.length > 0 && (
-						<div className="mt-2 bg-white/5 rounded-lg max-h-40 overflow-y-auto">
-							{searchResults.map(track => (
-								<button
-									key={track.id}
-									onClick={() => addTrackToPlaylist(track)}
-									className="w-full p-3 text-left hover:bg-white/10 transition-colors flex items-center gap-3"
-								>
-									<Image
-										src={track.image_url}
-										alt={track.album}
-										width={40}
-										height={40}
-										className="w-10 h-10 rounded object-cover"
-									/>
-									<div>
-										<p className="text-white font-medium">{track.name}</p>
-										<p className="text-gray-300 text-sm">{track.artist}</p>
-									</div>
-								</button>
-							))}
+						<div className="mt-4">
+							<h4 className="text-white font-medium mb-3">Search Results ({searchResults.length})</h4>
+							<div className="bg-white/5 rounded-lg p-3 md:p-4 max-h-96 overflow-y-auto">
+								<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-3">
+									{searchResults.map(track => (
+										<button
+											key={track.id}
+											onClick={() => addTrackToPlaylist(track)}
+											className="bg-white/10 hover:bg-white/20 transition-colors rounded-lg p-2 md:p-3 text-left group"
+										>
+											<div className="aspect-square mb-2 relative">
+												<Image
+													src={track.image_url}
+													alt={track.album}
+													width={120}
+													height={120}
+													className="w-full h-full rounded object-cover"
+												/>
+												<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded flex items-center justify-center">
+													<PlusIcon className="w-4 h-4 md:w-6 md:h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+												</div>
+											</div>
+											<div className="space-y-1">
+												<p className="text-white font-medium text-xs md:text-sm leading-tight overflow-hidden"
+													style={{
+														display: '-webkit-box',
+														WebkitLineClamp: 2,
+														WebkitBoxOrient: 'vertical' as const
+													}}>
+													{track.name}
+												</p>
+												<p className="text-gray-300 text-xs truncate">
+													{track.artist}
+												</p>
+												<p className="text-gray-400 text-xs truncate hidden md:block">
+													{track.album}
+												</p>
+											</div>
+										</button>
+									))}
+								</div>
+							</div>
 						</div>
 					)}
 

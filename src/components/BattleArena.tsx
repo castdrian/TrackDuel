@@ -90,10 +90,10 @@ export function BattleArena() {
 		}
 
 		const audio = audioRefs.current[trackId];
-		
+
 		// For mobile compatibility, handle the promise gracefully
 		const playPromise = audio.play();
-		
+
 		if (playPromise !== undefined) {
 			playPromise.then(() => {
 				setPlayingTrack(trackId);
