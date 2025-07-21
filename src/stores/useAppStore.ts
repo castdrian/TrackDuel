@@ -139,9 +139,11 @@ export const useAppStore = create<AppState>()(
 				const playlist = get().currentPlaylist;
 				if (!playlist || playlist.tracks.length < 2) return null;
 
-				// Find two tracks that haven't battled each other yet
+				// Find all possible track pairs that haven't battled each other yet
 				const tracks = playlist.tracks;
 				const battles = playlist.battles;
+				const availablePairs: Array<[(typeof tracks)[0], (typeof tracks)[0]]> =
+					[];
 
 				for (let i = 0; i < tracks.length; i++) {
 					for (let j = i + 1; j < tracks.length; j++) {
@@ -158,17 +160,24 @@ export const useAppStore = create<AppState>()(
 						);
 
 						if (!hasBattled) {
-							return {
-								id: `battle-${Date.now()}-${Math.random()}`,
-								track1,
-								track2,
-								timestamp: new Date(),
-							};
+							availablePairs.push([track1, track2]);
 						}
 					}
 				}
 
-				return null; // All battles complete
+				// If no available pairs, all battles are complete
+				if (availablePairs.length === 0) return null;
+
+				// Randomly select a pair from available battles
+				const randomIndex = Math.floor(Math.random() * availablePairs.length);
+				const [track1, track2] = availablePairs[randomIndex];
+
+				return {
+					id: `battle-${Date.now()}-${Math.random()}`,
+					track1,
+					track2,
+					timestamp: new Date(),
+				};
 			},
 
 			calculateRankings: () => {

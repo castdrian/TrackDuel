@@ -383,20 +383,20 @@ export function PlaylistCreator() {
 							<button
 								type="button"
 								onClick={importPlaylist}
-								className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+								className="bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-3 py-2 rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
 								title="Import Playlist"
 							>
 								<ArrowUpTrayIcon className="w-4 h-4" />
-								Import
+								<span className="hidden sm:inline">Import</span>
 							</button>
 							<button
 								type="button"
 								onClick={exportAllPlaylists}
-								className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+								className="bg-green-500 hover:bg-green-600 text-white px-2 sm:px-3 py-2 rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
 								title="Export All Playlists"
 							>
 								<ArrowDownTrayIcon className="w-4 h-4" />
-								Export All
+								<span className="hidden sm:inline">Export All</span>
 							</button>
 						</div>
 					</div>
