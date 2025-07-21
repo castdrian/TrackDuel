@@ -12,7 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { ListBulletIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAppStore } from '@/stores/useAppStore';
 import type { BattleTrack, Playlist } from '@/types';
@@ -39,7 +39,7 @@ export function PlaylistCreator() {
 	} = useAppStore();
 
 	// Search for tracks using iTunes API
-	const searchTracks = async (query: string) => {
+	const searchTracks = useCallback(async (query: string) => {
 		if (!query.trim()) {
 			setSearchResults([]);
 			return;
@@ -64,14 +64,14 @@ export function PlaylistCreator() {
 		} finally {
 			setIsSearching(false);
 		}
-	}; // Debounced search effect
+	}, []); // Debounced search effect
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
 			searchTracks(searchQuery);
 		}, 500);
 
 		return () => clearTimeout(timeoutId);
-	}, [searchQuery]);
+	}, [searchQuery, searchTracks]);
 
 	const addTrackToPlaylist = (track: BattleTrack) => {
 		if (tracks.find(t => t.id === track.id)) {
@@ -361,6 +361,7 @@ export function PlaylistCreator() {
 						Create your first playlist or import existing ones
 					</p>
 					<button
+						type="button"
 						onClick={importPlaylist}
 						className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 mx-auto"
 					>
@@ -380,6 +381,7 @@ export function PlaylistCreator() {
 						</h2>
 						<div className="flex items-center gap-2">
 							<button
+								type="button"
 								onClick={importPlaylist}
 								className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
 								title="Import Playlist"
@@ -388,6 +390,7 @@ export function PlaylistCreator() {
 								Import
 							</button>
 							<button
+								type="button"
 								onClick={exportAllPlaylists}
 								className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
 								title="Export All Playlists"
@@ -402,6 +405,7 @@ export function PlaylistCreator() {
 							<div key={playlist.id} className="bg-white/10 rounded-lg p-4">
 								<div className="flex items-center justify-between">
 									<button
+										type="button"
 										onClick={() => selectExistingPlaylist(playlist)}
 										className="flex-1 text-left hover:bg-white/10 rounded-lg p-2 -m-2 transition-colors"
 									>
@@ -418,6 +422,7 @@ export function PlaylistCreator() {
 									</button>
 									<div className="flex items-center gap-2 ml-4">
 										<button
+											type="button"
 											onClick={() => startPlaylistBattle(playlist)}
 											className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors"
 											title={
@@ -427,6 +432,7 @@ export function PlaylistCreator() {
 											<PlayIcon className="w-4 h-4" />
 										</button>
 										<button
+											type="button"
 											onClick={() => startEditingPlaylist(playlist)}
 											className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors"
 											title="Edit"
@@ -434,6 +440,7 @@ export function PlaylistCreator() {
 											<PencilIcon className="w-4 h-4" />
 										</button>
 										<button
+											type="button"
 											onClick={() => exportPlaylist(playlist)}
 											className="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-lg transition-colors"
 											title="Export Playlist"
@@ -442,6 +449,7 @@ export function PlaylistCreator() {
 										</button>
 										{playlist.battles.length > 0 && (
 											<button
+												type="button"
 												onClick={() =>
 													handleResetPlaylist(playlist.id, playlist.name)
 												}
@@ -452,6 +460,7 @@ export function PlaylistCreator() {
 											</button>
 										)}
 										<button
+											type="button"
 											onClick={() =>
 												handleDeletePlaylist(playlist.id, playlist.name)
 											}
@@ -509,6 +518,7 @@ export function PlaylistCreator() {
 								<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-3">
 									{searchResults.map(track => (
 										<button
+											type="button"
 											key={track.id}
 											onClick={() => addTrackToPlaylist(track)}
 											className="bg-white/10 hover:bg-white/20 transition-colors rounded-lg p-2 md:p-3 text-left group"
@@ -605,6 +615,7 @@ export function PlaylistCreator() {
 										</div>
 									</div>
 									<button
+										type="button"
 										onClick={() => removeTrack(track.id)}
 										className="text-red-400 hover:text-red-300 transition-colors"
 									>
@@ -621,6 +632,7 @@ export function PlaylistCreator() {
 					{editingPlaylist ? (
 						<>
 							<button
+								type="button"
 								onClick={saveEditedPlaylist}
 								disabled={tracks.length < 2 || !playlistName.trim()}
 								className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors"
@@ -628,6 +640,7 @@ export function PlaylistCreator() {
 								Save Changes
 							</button>
 							<button
+								type="button"
 								onClick={cancelEditing}
 								className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
 							>
@@ -636,6 +649,7 @@ export function PlaylistCreator() {
 						</>
 					) : (
 						<button
+							type="button"
 							onClick={createPlaylist}
 							disabled={tracks.length < 2 || !playlistName.trim()}
 							className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors"

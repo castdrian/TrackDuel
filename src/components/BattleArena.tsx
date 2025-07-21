@@ -25,7 +25,6 @@ export function BattleArena() {
 		completeBattle,
 		generateNextBattle,
 		setCurrentBattle,
-		setCurrentPlaylist,
 		currentPlaylist,
 	} = useAppStore();
 
@@ -204,6 +203,7 @@ export function BattleArena() {
 						Battle {battleNumber} of {totalBattles}
 					</span>
 					<button
+						type="button"
 						onClick={cancelBattle}
 						className="text-gray-400 hover:text-white transition-colors p-1"
 						title="Save Progress & Exit"
@@ -255,6 +255,7 @@ export function BattleArena() {
 
 							{/* Play Button Overlay */}
 							<button
+								type="button"
 								onClick={() => playTrack(track)}
 								disabled={!track.preview_url}
 								className="absolute inset-0 bg-black/40 hover:bg-black/60 disabled:bg-black/40 disabled:cursor-not-allowed flex items-center justify-center rounded-lg transition-colors duration-200"
@@ -324,6 +325,7 @@ export function BattleArena() {
 
 						{/* Vote Button */}
 						<button
+							type="button"
 							onClick={() => handleVote(track.id)}
 							className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-2 md:py-3 px-4 md:px-6 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm md:text-lg"
 						>

@@ -52,7 +52,7 @@ export function Results() {
 			const shareableText = `My TrackDuel Rankings for "${currentPlaylist.name}":\n\n${generateShareableList()}\n\nCreated with TrackDuel 🎵`;
 
 			// Check if clipboard API is available
-			if (navigator.clipboard && navigator.clipboard.writeText) {
+			if (navigator.clipboard?.writeText) {
 				await navigator.clipboard.writeText(shareableText);
 				toast.success('Rankings copied to clipboard!');
 			} else {
@@ -113,6 +113,7 @@ export function Results() {
 			<div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6">
 				<div className="flex items-center justify-between mb-4">
 					<button
+						type="button"
 						onClick={backToPlaylists}
 						className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
 					>
@@ -122,6 +123,7 @@ export function Results() {
 
 					<div className="flex gap-2">
 						<button
+							type="button"
 							onClick={copyToClipboard}
 							className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
 						>
@@ -131,6 +133,7 @@ export function Results() {
 
 						{!isComplete && (
 							<button
+								type="button"
 								onClick={continueRanking}
 								className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
 							>
@@ -257,7 +260,7 @@ export function Results() {
 					<div>
 						<div className="text-2xl font-bold text-purple-400">
 							{rankings[0]?.name.length > 15
-								? rankings[0]?.name.substring(0, 15) + '...'
+								? `${rankings[0]?.name.substring(0, 15)}...`
 								: rankings[0]?.name}
 						</div>
 						<div className="text-sm text-gray-400">Champion</div>
@@ -279,12 +282,14 @@ export function Results() {
 						/>
 						<div className="flex gap-3 mt-4">
 							<button
+								type="button"
 								onClick={copyToClipboard}
 								className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors"
 							>
 								Copy to Clipboard
 							</button>
 							<button
+								type="button"
 								onClick={() => setShowShareModal(false)}
 								className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
 							>

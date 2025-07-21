@@ -43,7 +43,7 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 		return () => {
 			resizeObserver.disconnect();
 		};
-	}, [text, speed]);
+	}, [speed]);
 
 	return (
 		<div

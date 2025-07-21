@@ -282,19 +282,35 @@ export const useAppStore = create<AppState>()(
 								: battle.track1.id;
 
 						if (statsMap.has(winnerId)) {
-							statsMap.get(winnerId)!.wins++;
-							statsMap.get(winnerId)!.battles++;
+							const winnerStats = statsMap.get(winnerId);
+							if (winnerStats) {
+								winnerStats.wins++;
+								winnerStats.battles++;
+							}
 						}
 						if (statsMap.has(loserId)) {
-							statsMap.get(loserId)!.losses++;
-							statsMap.get(loserId)!.battles++;
+							const loserStats = statsMap.get(loserId);
+							if (loserStats) {
+								loserStats.losses++;
+								loserStats.battles++;
+							}
 						}
 					}
 				});
 
 				// Apply recalculated stats and scores
 				const finalTracks = adaptedTracks.map(track => {
-					const stats = statsMap.get(track.id)!;
+					const stats = statsMap.get(track.id);
+					if (!stats) {
+						// Fallback for tracks without stats
+						return {
+							...track,
+							wins: 0,
+							losses: 0,
+							battles: 0,
+							score: 0,
+						};
+					}
 					return {
 						...track,
 						wins: stats.wins,
