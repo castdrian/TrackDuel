@@ -3,24 +3,24 @@
 /* TrackDuel - Ensure proper background and mobile chrome styling */
 html,
 body {
-	margin: 0;
-	padding: 0;
-	min-height: 100vh;
-	color: #ededed;
-	font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: #ededed;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 /* Marquee animation for scrolling text */
 @keyframes marquee {
-	0% {
-		transform: translateX(100%);
-	}
+  0% {
+    transform: translateX(100%);
+  }
 
-	100% {
-		transform: translateX(-100%);
-	}
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 .animate-marquee {
-	animation: marquee linear infinite;
+  animation: marquee linear infinite;
 }

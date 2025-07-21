@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { useAppStore } from '@/stores/useAppStore';
-import { BattleTrack, Playlist } from '@/types';
 import {
-	PlusIcon,
-	TrashIcon,
-	PlayIcon,
+	ArrowDownTrayIcon,
+	ArrowPathIcon,
+	ArrowUpTrayIcon,
 	MagnifyingGlassIcon,
 	PencilIcon,
-	ArrowDownTrayIcon,
-	ArrowUpTrayIcon,
-	ArrowPathIcon
+	PlayIcon,
+	PlusIcon,
+	TrashIcon,
 } from '@heroicons/react/24/outline';
 import { ListBulletIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useAppStore } from '@/stores/useAppStore';
+import type { BattleTrack, Playlist } from '@/types';
 import { Marquee } from './Marquee';
 
 export function PlaylistCreator() {
@@ -35,7 +35,7 @@ export function PlaylistCreator() {
 		updatePlaylist,
 		deletePlaylist,
 		resetPlaylistBattles,
-		adaptPlaylistBattles
+		adaptPlaylistBattles,
 	} = useAppStore();
 
 	// Search for tracks using iTunes API
@@ -47,7 +47,9 @@ export function PlaylistCreator() {
 
 		setIsSearching(true);
 		try {
-			const response = await fetch(`/api/itunes/search?q=${encodeURIComponent(query)}`);
+			const response = await fetch(
+				`/api/itunes/search?q=${encodeURIComponent(query)}`
+			);
 			if (response.ok) {
 				const data = await response.json();
 				setSearchResults(data.tracks || []);
@@ -62,7 +64,7 @@ export function PlaylistCreator() {
 		} finally {
 			setIsSearching(false);
 		}
-	};	// Debounced search effect
+	}; // Debounced search effect
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
 			searchTracks(searchQuery);
@@ -120,7 +122,7 @@ export function PlaylistCreator() {
 			...editingPlaylist,
 			name: playlistName.trim(),
 			tracks, // tracks will be updated by adaptPlaylistBattles
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		};
 
 		updatePlaylist(updatedPlaylist);
@@ -136,11 +138,16 @@ export function PlaylistCreator() {
 	};
 
 	const handleResetPlaylist = (playlistId: string, playlistName: string) => {
-		if (confirm(`Are you sure you want to reset all battle progress for "${playlistName}"? This will clear all rankings and start fresh.`)) {
+		if (
+			confirm(
+				`Are you sure you want to reset all battle progress for "${playlistName}"? This will clear all rankings and start fresh.`
+			)
+		) {
 			resetPlaylistBattles(playlistId);
 			toast.success('Battle progress reset! Ready to start fresh.');
 		}
-	}; const createPlaylist = () => {
+	};
+	const createPlaylist = () => {
 		if (!playlistName.trim()) {
 			toast.error('Please enter a playlist name');
 			return;
@@ -158,7 +165,7 @@ export function PlaylistCreator() {
 			battles: [],
 			isComplete: false,
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		};
 
 		addPlaylist(playlist);
@@ -206,7 +213,7 @@ export function PlaylistCreator() {
 	// Export playlist data as JSON
 	const exportPlaylist = (playlist: Playlist) => {
 		const exportData = {
-			version: "1.0",
+			version: '1.0',
 			exportedAt: new Date().toISOString(),
 			playlist: {
 				id: playlist.id,
@@ -221,13 +228,13 @@ export function PlaylistCreator() {
 					wins: track.wins,
 					losses: track.losses,
 					battles: track.battles,
-					score: track.score
+					score: track.score,
 				})),
 				battles: playlist.battles,
 				isComplete: playlist.isComplete,
 				createdAt: playlist.createdAt,
-				updatedAt: playlist.updatedAt
-			}
+				updatedAt: playlist.updatedAt,
+			},
 		};
 
 		const dataStr = JSON.stringify(exportData, null, 2);
@@ -246,7 +253,7 @@ export function PlaylistCreator() {
 	// Export all playlists
 	const exportAllPlaylists = () => {
 		const exportData = {
-			version: "1.0",
+			version: '1.0',
 			exportedAt: new Date().toISOString(),
 			playlists: playlists.map(playlist => ({
 				id: playlist.id,
@@ -261,13 +268,13 @@ export function PlaylistCreator() {
 					wins: track.wins,
 					losses: track.losses,
 					battles: track.battles,
-					score: track.score
+					score: track.score,
 				})),
 				battles: playlist.battles,
 				isComplete: playlist.isComplete,
 				createdAt: playlist.createdAt,
-				updatedAt: playlist.updatedAt
-			}))
+				updatedAt: playlist.updatedAt,
+			})),
 		};
 
 		const dataStr = JSON.stringify(exportData, null, 2);
@@ -288,12 +295,12 @@ export function PlaylistCreator() {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.accept = '.json';
-		input.onchange = (e) => {
+		input.onchange = e => {
 			const file = (e.target as HTMLInputElement).files?.[0];
 			if (!file) return;
 
 			const reader = new FileReader();
-			reader.onload = (e) => {
+			reader.onload = e => {
 				try {
 					const content = e.target?.result as string;
 					const importData = JSON.parse(content);
@@ -310,7 +317,7 @@ export function PlaylistCreator() {
 							...playlist,
 							id: Date.now().toString(), // Generate new ID to avoid conflicts
 							createdAt: new Date(playlist.createdAt),
-							updatedAt: new Date()
+							updatedAt: new Date(),
 						};
 
 						addPlaylist(importedPlaylist);
@@ -323,7 +330,7 @@ export function PlaylistCreator() {
 								...playlist,
 								id: (Date.now() + importCount).toString(), // Generate unique IDs
 								createdAt: new Date(playlist.createdAt),
-								updatedAt: new Date()
+								updatedAt: new Date(),
 							};
 							addPlaylist(importedPlaylist);
 							importCount++;
@@ -334,7 +341,9 @@ export function PlaylistCreator() {
 					}
 				} catch (error) {
 					console.error('Import error:', error);
-					toast.error('Failed to import playlist. Please check the file format.');
+					toast.error(
+						'Failed to import playlist. Please check the file format.'
+					);
 				}
 			};
 			reader.readAsText(file);
@@ -396,9 +405,12 @@ export function PlaylistCreator() {
 										onClick={() => selectExistingPlaylist(playlist)}
 										className="flex-1 text-left hover:bg-white/10 rounded-lg p-2 -m-2 transition-colors"
 									>
-										<h3 className="font-semibold text-white">{playlist.name}</h3>
+										<h3 className="font-semibold text-white">
+											{playlist.name}
+										</h3>
 										<p className="text-sm text-gray-300">
-											{playlist.tracks.length} songs • {playlist.battles.length} battles
+											{playlist.tracks.length} songs • {playlist.battles.length}{' '}
+											battles
 											{playlist.isComplete && (
 												<span className="text-green-400 ml-2">✓ Complete</span>
 											)}
@@ -408,7 +420,9 @@ export function PlaylistCreator() {
 										<button
 											onClick={() => startPlaylistBattle(playlist)}
 											className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors"
-											title={playlist.isComplete ? "Re-battle" : "Battle/Continue"}
+											title={
+												playlist.isComplete ? 'Re-battle' : 'Battle/Continue'
+											}
 										>
 											<PlayIcon className="w-4 h-4" />
 										</button>
@@ -426,9 +440,11 @@ export function PlaylistCreator() {
 										>
 											<ArrowDownTrayIcon className="w-4 h-4" />
 										</button>
-										{(playlist.battles.length > 0) && (
+										{playlist.battles.length > 0 && (
 											<button
-												onClick={() => handleResetPlaylist(playlist.id, playlist.name)}
+												onClick={() =>
+													handleResetPlaylist(playlist.id, playlist.name)
+												}
 												className="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-lg transition-colors"
 												title="Reset Battle Progress"
 											>
@@ -436,7 +452,9 @@ export function PlaylistCreator() {
 											</button>
 										)}
 										<button
-											onClick={() => handleDeletePlaylist(playlist.id, playlist.name)}
+											onClick={() =>
+												handleDeletePlaylist(playlist.id, playlist.name)
+											}
 											className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors"
 											title="Delete"
 										>
@@ -463,7 +481,7 @@ export function PlaylistCreator() {
 						type="text"
 						placeholder="Enter playlist name..."
 						value={playlistName}
-						onChange={(e) => setPlaylistName(e.target.value)}
+						onChange={e => setPlaylistName(e.target.value)}
 						className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400"
 					/>
 				</div>
@@ -476,7 +494,7 @@ export function PlaylistCreator() {
 							type="text"
 							placeholder="Search for tracks..."
 							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
+							onChange={e => setSearchQuery(e.target.value)}
 							className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
 						/>
 					</div>
@@ -484,7 +502,9 @@ export function PlaylistCreator() {
 					{/* Search Results */}
 					{searchResults.length > 0 && (
 						<div className="mt-4">
-							<h4 className="text-white font-medium mb-3">Search Results ({searchResults.length})</h4>
+							<h4 className="text-white font-medium mb-3">
+								Search Results ({searchResults.length})
+							</h4>
 							<div className="bg-white/5 rounded-lg p-3 md:p-4 max-h-96 overflow-y-auto">
 								<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-3">
 									{searchResults.map(track => (
@@ -506,19 +526,33 @@ export function PlaylistCreator() {
 												</div>
 											</div>
 											<div className="space-y-1">
-												<div className="text-white font-medium text-xs md:text-sm leading-tight overflow-hidden"
+												<div
+													className="text-white font-medium text-xs md:text-sm leading-tight overflow-hidden"
 													style={{
 														display: '-webkit-box',
 														WebkitLineClamp: 2,
-														WebkitBoxOrient: 'vertical' as const
-													}}>
-													<Marquee text={track.name} className="text-white font-medium text-xs md:text-sm leading-tight" speed={30} />
+														WebkitBoxOrient: 'vertical' as const,
+													}}
+												>
+													<Marquee
+														text={track.name}
+														className="text-white font-medium text-xs md:text-sm leading-tight"
+														speed={30}
+													/>
 												</div>
 												<div className="text-gray-300 text-xs">
-													<Marquee text={track.artist} className="text-gray-300 text-xs" speed={25} />
+													<Marquee
+														text={track.artist}
+														className="text-gray-300 text-xs"
+														speed={25}
+													/>
 												</div>
 												<div className="text-gray-400 text-xs hidden md:block">
-													<Marquee text={track.album} className="text-gray-400 text-xs" speed={20} />
+													<Marquee
+														text={track.album}
+														className="text-gray-400 text-xs"
+														speed={20}
+													/>
 												</div>
 											</div>
 										</button>
@@ -536,10 +570,15 @@ export function PlaylistCreator() {
 				{/* Current Tracks */}
 				{tracks.length > 0 && (
 					<div className="mb-4">
-						<h3 className="text-white font-semibold mb-2">Tracks ({tracks.length})</h3>
+						<h3 className="text-white font-semibold mb-2">
+							Tracks ({tracks.length})
+						</h3>
 						<div className="space-y-2 max-h-40 overflow-y-auto">
 							{tracks.map(track => (
-								<div key={track.id} className="bg-white/5 rounded-lg p-3 flex items-center justify-between">
+								<div
+									key={track.id}
+									className="bg-white/5 rounded-lg p-3 flex items-center justify-between"
+								>
 									<div className="flex items-center gap-3">
 										<Image
 											src={track.image_url}
@@ -550,10 +589,18 @@ export function PlaylistCreator() {
 										/>
 										<div>
 											<div className="text-white font-medium">
-												<Marquee text={track.name} className="text-white font-medium" speed={30} />
+												<Marquee
+													text={track.name}
+													className="text-white font-medium"
+													speed={30}
+												/>
 											</div>
 											<div className="text-gray-300 text-sm">
-												<Marquee text={track.artist} className="text-gray-300 text-sm" speed={25} />
+												<Marquee
+													text={track.artist}
+													className="text-gray-300 text-sm"
+													speed={25}
+												/>
 											</div>
 										</div>
 									</div>

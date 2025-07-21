@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
-import { useAppStore } from '@/stores/useAppStore';
-import { BattleTrack } from '@/types';
-import {
-	PlayIcon,
-	PauseIcon,
-	SpeakerWaveIcon,
-	HeartIcon as HeartSolid
-} from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import {
+	HeartIcon as HeartSolid,
+	PauseIcon,
+	PlayIcon,
+	SpeakerWaveIcon,
+} from '@heroicons/react/24/solid';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useAppStore } from '@/stores/useAppStore';
+import type { BattleTrack } from '@/types';
 import { Marquee } from './Marquee';
 
 export function BattleArena() {
@@ -26,7 +26,7 @@ export function BattleArena() {
 		generateNextBattle,
 		setCurrentBattle,
 		setCurrentPlaylist,
-		currentPlaylist
+		currentPlaylist,
 	} = useAppStore();
 
 	useEffect(() => {
@@ -39,7 +39,12 @@ export function BattleArena() {
 	}, [currentBattle, generateNextBattle, setCurrentBattle]);
 
 	const playTrack = (track: BattleTrack) => {
-		console.log('Playing track:', track.name, 'Preview URL:', track.preview_url);
+		console.log(
+			'Playing track:',
+			track.name,
+			'Preview URL:',
+			track.preview_url
+		);
 
 		// Stop any currently playing track
 		Object.values(audioRefs.current).forEach(audio => {
@@ -70,7 +75,7 @@ export function BattleArena() {
 			audio.addEventListener('timeupdate', () => {
 				setCurrentTime(prev => ({
 					...prev,
-					[trackId]: audio.currentTime
+					[trackId]: audio.currentTime,
 				}));
 			});
 
@@ -78,11 +83,11 @@ export function BattleArena() {
 				setPlayingTrack(null);
 				setCurrentTime(prev => ({
 					...prev,
-					[trackId]: 0
+					[trackId]: 0,
 				}));
 			});
 
-			audio.addEventListener('error', (e) => {
+			audio.addEventListener('error', e => {
 				console.error('Audio error:', e);
 				setPlayingTrack(null);
 			});
@@ -96,15 +101,17 @@ export function BattleArena() {
 		const playPromise = audio.play();
 
 		if (playPromise !== undefined) {
-			playPromise.then(() => {
-				setPlayingTrack(trackId);
-			}).catch((error) => {
-				console.error('Error playing audio:', error);
-				// Only show toast on first interaction error, not subsequent ones
-				if (error.name === 'NotAllowedError') {
-					toast.error('Tap again to play audio', { duration: 2000 });
-				}
-			});
+			playPromise
+				.then(() => {
+					setPlayingTrack(trackId);
+				})
+				.catch(error => {
+					console.error('Error playing audio:', error);
+					// Only show toast on first interaction error, not subsequent ones
+					if (error.name === 'NotAllowedError') {
+						toast.error('Tap again to play audio', { duration: 2000 });
+					}
+				});
 		} else {
 			setPlayingTrack(trackId);
 		}
@@ -170,7 +177,9 @@ export function BattleArena() {
 	if (!currentBattle) {
 		return (
 			<div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center">
-				<h2 className="text-2xl font-bold text-white mb-4">🎉 Battle Complete!</h2>
+				<h2 className="text-2xl font-bold text-white mb-4">
+					🎉 Battle Complete!
+				</h2>
 				<p className="text-gray-300 mb-6">
 					All songs have been ranked. Check out your results!
 				</p>
@@ -179,16 +188,21 @@ export function BattleArena() {
 	}
 
 	const { track1, track2 } = currentBattle;
-	const battleNumber = currentPlaylist?.battles.length ? currentPlaylist.battles.length + 1 : 1;
-	const totalBattles = currentPlaylist ?
-		(currentPlaylist.tracks.length * (currentPlaylist.tracks.length - 1)) / 2 : 0;
+	const battleNumber = currentPlaylist?.battles.length
+		? currentPlaylist.battles.length + 1
+		: 1;
+	const totalBattles = currentPlaylist
+		? (currentPlaylist.tracks.length * (currentPlaylist.tracks.length - 1)) / 2
+		: 0;
 
 	return (
 		<div className="space-y-6">
 			{/* Battle Progress */}
 			<div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4">
 				<div className="flex items-center justify-between text-white mb-2">
-					<span className="text-sm">Battle {battleNumber} of {totalBattles}</span>
+					<span className="text-sm">
+						Battle {battleNumber} of {totalBattles}
+					</span>
 					<button
 						onClick={cancelBattle}
 						className="text-gray-400 hover:text-white transition-colors p-1"
@@ -198,7 +212,9 @@ export function BattleArena() {
 					</button>
 				</div>
 				<div className="flex items-center justify-between text-white mb-2">
-					<span className="text-sm">{Math.round((battleNumber / totalBattles) * 100)}% Complete</span>
+					<span className="text-sm">
+						{Math.round((battleNumber / totalBattles) * 100)}% Complete
+					</span>
 				</div>
 				<div className="w-full bg-white/20 rounded-full h-2 mt-2">
 					<div
@@ -210,8 +226,12 @@ export function BattleArena() {
 
 			{/* Battle Arena */}
 			<div className="text-center mb-6">
-				<h2 className="text-2xl font-bold text-white mb-2">Choose Your Favorite</h2>
-				<p className="text-gray-300">Tap a song to preview, then pick the winner!</p>
+				<h2 className="text-2xl font-bold text-white mb-2">
+					Choose Your Favorite
+				</h2>
+				<p className="text-gray-300">
+					Tap a song to preview, then pick the winner!
+				</p>
 			</div>
 
 			<div className="grid grid-cols-2 gap-3 md:gap-6">
@@ -297,11 +317,9 @@ export function BattleArena() {
 									<SpeakerWaveIcon className="w-4 h-4" />
 									<span>{formatTime(currentTime[track.id] || 0)} / 0:30</span>
 								</>
-							) : track.preview_url ? (
-								<span className="text-gray-500">Click to preview</span>
-							) : (
+							) : !track.preview_url ? (
 								<span className="text-red-400">No preview available</span>
-							)}
+							) : null}
 						</div>
 
 						{/* Vote Button */}

@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { useAppStore } from '@/stores/useAppStore';
 import {
-	TrophyIcon,
 	ArrowLeftIcon,
 	ClipboardDocumentIcon,
-	PlayIcon
+	PlayIcon,
+	TrophyIcon,
 } from '@heroicons/react/24/solid';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useAppStore } from '@/stores/useAppStore';
 import { Marquee } from './Marquee';
 
 export function Results() {
@@ -20,7 +20,7 @@ export function Results() {
 		calculateRankings,
 		setCurrentPlaylist,
 		generateNextBattle,
-		setCurrentBattle
+		setCurrentBattle,
 	} = useAppStore();
 
 	const continueBattle = () => {
@@ -43,9 +43,7 @@ export function Results() {
 
 	const generateShareableList = () => {
 		return rankings
-			.map((track, index) =>
-				`${index + 1}. ${track.name} - ${track.artist}`
-			)
+			.map((track, index) => `${index + 1}. ${track.name} - ${track.artist}`)
 			.join('\n');
 	};
 
@@ -93,14 +91,18 @@ export function Results() {
 
 	const getRankIcon = (rank: number) => {
 		switch (rank) {
-			case 1: return '🥇';
-			case 2: return '🥈';
-			case 3: return '🥉';
-			default: return `#${rank}`;
+			case 1:
+				return '🥇';
+			case 2:
+				return '🥈';
+			case 3:
+				return '🥉';
+			default:
+				return `#${rank}`;
 		}
 	};
 
-	const getWinPercentage = (track: typeof rankings[0]) => {
+	const getWinPercentage = (track: (typeof rankings)[0]) => {
 		if (track.battles === 0) return 0;
 		return Math.round((track.wins / track.battles) * 100);
 	};
@@ -173,13 +175,15 @@ export function Results() {
 						>
 							{/* Rank */}
 							<div className="text-2xl font-bold min-w-[3rem] text-center">
-								{typeof getRankIcon(index + 1) === 'string' && getRankIcon(index + 1).includes('#') ? (
-									<span className="text-gray-300">{getRankIcon(index + 1)}</span>
+								{typeof getRankIcon(index + 1) === 'string' &&
+								getRankIcon(index + 1).includes('#') ? (
+									<span className="text-gray-300">
+										{getRankIcon(index + 1)}
+									</span>
 								) : (
 									<span>{getRankIcon(index + 1)}</span>
 								)}
 							</div>
-
 							{/* Album Art */}
 							<Image
 								src={track.image_url || '/placeholder-album.svg'}
@@ -188,7 +192,6 @@ export function Results() {
 								height={48}
 								className="w-12 h-12 rounded object-cover"
 							/>
-
 							{/* Track Info */}
 							<div className="flex-1 min-w-0">
 								<div className="mb-1">
@@ -205,7 +208,8 @@ export function Results() {
 										speed={35}
 									/>
 								</div>
-							</div>							{/* Stats */}
+							</div>{' '}
+							{/* Stats */}
 							<div className="text-right min-w-[5rem]">
 								<div className="text-white font-semibold">
 									{getWinPercentage(track)}%
@@ -221,28 +225,40 @@ export function Results() {
 
 			{/* Battle Summary */}
 			<div className="bg-white/5 backdrop-blur-lg rounded-xl p-4">
-				<h3 className="text-lg font-semibold text-white mb-3">Battle Summary</h3>
+				<h3 className="text-lg font-semibold text-white mb-3">
+					Battle Summary
+				</h3>
 				<div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
 					<div>
-						<div className="text-2xl font-bold text-green-400">{currentPlaylist.tracks.length}</div>
+						<div className="text-2xl font-bold text-green-400">
+							{currentPlaylist.tracks.length}
+						</div>
 						<div className="text-sm text-gray-400">Total Songs</div>
 					</div>
 					<div>
-						<div className="text-2xl font-bold text-blue-400">{totalBattles}</div>
+						<div className="text-2xl font-bold text-blue-400">
+							{totalBattles}
+						</div>
 						<div className="text-sm text-gray-400">Battles Fought</div>
 					</div>
 					<div>
 						<div className="text-2xl font-bold text-yellow-400">
-							{Math.round((totalBattles / ((currentPlaylist.tracks.length * (currentPlaylist.tracks.length - 1)) / 2)) * 100)}%
+							{Math.round(
+								(totalBattles /
+									((currentPlaylist.tracks.length *
+										(currentPlaylist.tracks.length - 1)) /
+										2)) *
+									100
+							)}
+							%
 						</div>
 						<div className="text-sm text-gray-400">Complete</div>
 					</div>
 					<div>
 						<div className="text-2xl font-bold text-purple-400">
-							{rankings[0]?.name.length > 15 ?
-								rankings[0]?.name.substring(0, 15) + '...' :
-								rankings[0]?.name
-							}
+							{rankings[0]?.name.length > 15
+								? rankings[0]?.name.substring(0, 15) + '...'
+								: rankings[0]?.name}
 						</div>
 						<div className="text-sm text-gray-400">Champion</div>
 					</div>
@@ -253,7 +269,9 @@ export function Results() {
 			{showShareModal && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
 					<div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 max-w-md w-full">
-						<h3 className="text-xl font-bold text-white mb-4">Share Your Rankings</h3>
+						<h3 className="text-xl font-bold text-white mb-4">
+							Share Your Rankings
+						</h3>
 						<textarea
 							value={generateShareableList()}
 							readOnly

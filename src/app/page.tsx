@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAppStore } from '@/stores/useAppStore';
-import { PlaylistCreator } from '@/components/PlaylistCreator';
-import { BattleArena } from '@/components/BattleArena';
-import { Results } from '@/components/Results';
 import { Toaster } from 'react-hot-toast';
+import { BattleArena } from '@/components/BattleArena';
+import { PlaylistCreator } from '@/components/PlaylistCreator';
+import { Results } from '@/components/Results';
+import { useAppStore } from '@/stores/useAppStore';
 
 export default function Home() {
-	const { currentPlaylist, currentBattle, isHydrated, setHydrated } = useAppStore();
+	const { currentPlaylist, currentBattle, isHydrated, setHydrated } =
+		useAppStore();
 
 	useEffect(() => {
 		setHydrated();
@@ -50,9 +51,7 @@ export default function Home() {
 					</p>
 				</header>
 
-				<main className="max-w-4xl mx-auto">
-					{renderContent()}
-				</main>
+				<main className="max-w-4xl mx-auto">{renderContent()}</main>
 			</div>
 			<Toaster position="top-center" />
 		</div>
