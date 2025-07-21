@@ -16,6 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { ListBulletIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
+import { Marquee } from './Marquee';
 
 export function PlaylistCreator() {
 	const [playlistName, setPlaylistName] = useState('');
@@ -231,14 +232,14 @@ export function PlaylistCreator() {
 
 		const dataStr = JSON.stringify(exportData, null, 2);
 		const dataBlob = new Blob([dataStr], { type: 'application/json' });
-		
+
 		const link = document.createElement('a');
 		link.href = URL.createObjectURL(dataBlob);
 		link.download = `trackduel-${playlist.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
-		
+
 		toast.success(`Exported "${playlist.name}" playlist`);
 	};
 
@@ -271,14 +272,14 @@ export function PlaylistCreator() {
 
 		const dataStr = JSON.stringify(exportData, null, 2);
 		const dataBlob = new Blob([dataStr], { type: 'application/json' });
-		
+
 		const link = document.createElement('a');
 		link.href = URL.createObjectURL(dataBlob);
 		link.download = `trackduel-all-playlists-${new Date().toISOString().split('T')[0]}.json`;
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
-		
+
 		toast.success(`Exported ${playlists.length} playlists`);
 	};
 
@@ -505,20 +506,20 @@ export function PlaylistCreator() {
 												</div>
 											</div>
 											<div className="space-y-1">
-												<p className="text-white font-medium text-xs md:text-sm leading-tight overflow-hidden"
+												<div className="text-white font-medium text-xs md:text-sm leading-tight overflow-hidden"
 													style={{
 														display: '-webkit-box',
 														WebkitLineClamp: 2,
 														WebkitBoxOrient: 'vertical' as const
 													}}>
-													{track.name}
-												</p>
-												<p className="text-gray-300 text-xs truncate">
-													{track.artist}
-												</p>
-												<p className="text-gray-400 text-xs truncate hidden md:block">
-													{track.album}
-												</p>
+													<Marquee text={track.name} className="text-white font-medium text-xs md:text-sm leading-tight" speed={30} />
+												</div>
+												<div className="text-gray-300 text-xs">
+													<Marquee text={track.artist} className="text-gray-300 text-xs" speed={25} />
+												</div>
+												<div className="text-gray-400 text-xs hidden md:block">
+													<Marquee text={track.album} className="text-gray-400 text-xs" speed={20} />
+												</div>
 											</div>
 										</button>
 									))}
@@ -548,8 +549,12 @@ export function PlaylistCreator() {
 											className="w-10 h-10 rounded object-cover"
 										/>
 										<div>
-											<p className="text-white font-medium">{track.name}</p>
-											<p className="text-gray-300 text-sm">{track.artist}</p>
+											<div className="text-white font-medium">
+												<Marquee text={track.name} className="text-white font-medium" speed={30} />
+											</div>
+											<div className="text-gray-300 text-sm">
+												<Marquee text={track.artist} className="text-gray-300 text-sm" speed={25} />
+											</div>
 										</div>
 									</div>
 									<button

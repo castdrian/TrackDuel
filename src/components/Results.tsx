@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { Marquee } from './Marquee';
 
 export function Results() {
 	const [showShareModal, setShowShareModal] = useState(false);
@@ -190,12 +191,20 @@ export function Results() {
 
 							{/* Track Info */}
 							<div className="flex-1 min-w-0">
-								<h3 className="font-semibold text-white truncate">
-									{track.name}
-								</h3>
-								<p className="text-sm text-gray-300 truncate">
-									{track.artist}
-								</p>
+								<div className="mb-1">
+									<Marquee
+										text={track.name}
+										className="font-semibold text-white"
+										speed={40}
+									/>
+								</div>
+								<div>
+									<Marquee
+										text={track.artist}
+										className="text-sm text-gray-300"
+										speed={35}
+									/>
+								</div>
 							</div>							{/* Stats */}
 							<div className="text-right min-w-[5rem]">
 								<div className="text-white font-semibold">

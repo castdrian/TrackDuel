@@ -13,6 +13,7 @@ import {
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { Marquee } from './Marquee';
 
 export function BattleArena() {
 	const [playingTrack, setPlayingTrack] = useState<string | null>(null);
@@ -265,16 +266,28 @@ export function BattleArena() {
 						</div>
 
 						{/* Track Info */}
-						<div className="text-center mb-4">
-							<h3 className="font-bold text-white text-base md:text-lg mb-1 line-clamp-2">
-								{track.name}
-							</h3>
-							<p className="text-gray-300 text-xs md:text-sm">
-								{track.artist}
-							</p>
-							<p className="text-gray-400 text-xs mt-1">
-								{track.album}
-							</p>
+						<div className="text-center mb-4 h-20 flex flex-col justify-center">
+							<div className="mb-1">
+								<Marquee
+									text={track.name}
+									className="font-bold text-white text-base md:text-lg"
+									speed={30}
+								/>
+							</div>
+							<div className="mb-1">
+								<Marquee
+									text={track.artist}
+									className="text-gray-300 text-xs md:text-sm"
+									speed={25}
+								/>
+							</div>
+							<div>
+								<Marquee
+									text={track.album}
+									className="text-gray-400 text-xs"
+									speed={25}
+								/>
+							</div>
 						</div>
 
 						{/* Audio Status - Always reserve space */}
