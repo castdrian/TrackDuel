@@ -12,7 +12,6 @@ This is a mobile-friendly Next.js web application called TrackDuel that allows u
 - **API Integration**: Spotify Web API
 
 ## Key Features
-- Spotify playlist import and song search
 - Song vs song battle interface with 30-second previews
 - Mobile-first responsive design
 - Playlist ranking based on battle results
