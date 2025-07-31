@@ -13,6 +13,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAppStore } from '@/stores/useAppStore';
 import { Marquee } from './Marquee';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 export function Results() {
 	const [showShareModal, setShowShareModal] = useState(false);
@@ -34,6 +35,56 @@ export function Results() {
 			toast('All battles are complete!', { icon: '✅' });
 		}
 	};
+
+	// Keyboard shortcuts for results
+	const resultsShortcuts = [
+		{
+			key: 'c',
+			description: 'Continue battle',
+			action: () => {
+				if (currentPlaylist && !currentPlaylist.isComplete) {
+					continueBattle();
+				}
+			},
+			context: 'Results'
+		},
+		{
+			key: 's',
+			description: 'Take screenshot',
+			action: () => {
+				generateScreenshot();
+			},
+			context: 'Results'
+		},
+		{
+			key: 't',
+			description: 'Copy rankings as text',
+			action: () => {
+				if (currentPlaylist) {
+					const rankings = calculateRankings();
+					const shareableList = rankings
+						.map((track, index) => `${index + 1}. ${track.name} - ${track.artist}`)
+						.join('\n');
+					navigator.clipboard.writeText(shareableList).then(() => {
+						toast.success('Rankings copied to clipboard!');
+					}).catch(() => {
+						toast.error('Failed to copy to clipboard');
+					});
+				}
+			},
+			context: 'Results'
+		},
+		{
+			key: 'b',
+			description: 'Back to playlists',
+			action: () => {
+				setCurrentPlaylist(null);
+			},
+			context: 'Results'
+		}
+	];
+
+	useKeyboardShortcuts(resultsShortcuts, !!currentPlaylist);
 
 	if (!currentPlaylist) {
 		return null;

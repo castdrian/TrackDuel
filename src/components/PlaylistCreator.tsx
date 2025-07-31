@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { useAppStore } from '@/stores/useAppStore';
 import type { BattleTrack, Playlist } from '@/types';
 import { Marquee } from './Marquee';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 export function PlaylistCreator() {
 	const [playlistName, setPlaylistName] = useState('');
@@ -350,6 +351,50 @@ export function PlaylistCreator() {
 		};
 		input.click();
 	};
+
+	// Keyboard shortcuts for playlist creator
+	const playlistShortcuts = [
+		{
+			key: 'n',
+			description: 'Focus playlist name input',
+			action: () => {
+				const nameInput = document.querySelector('input[placeholder*="playlist name"]') as HTMLInputElement;
+				nameInput?.focus();
+			},
+			context: 'Playlist'
+		},
+		{
+			key: 'f',
+			description: 'Focus search input',
+			action: () => {
+				const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+				searchInput?.focus();
+			},
+			context: 'Playlist'
+		},
+		{
+			key: 'Enter',
+			description: 'Create playlist (when name is filled)',
+			action: () => {
+				if (playlistName.trim() && tracks.length >= 2) {
+					createPlaylist();
+				}
+			},
+			context: 'Playlist'
+		},
+		{
+			key: 'Escape',
+			description: 'Cancel editing',
+			action: () => {
+				if (editingPlaylist) {
+					cancelEditing();
+				}
+			},
+			context: 'Playlist'
+		}
+	];
+
+	useKeyboardShortcuts(playlistShortcuts, true);
 
 	return (
 		<div className="space-y-6">

@@ -9,7 +9,6 @@ This is a mobile-friendly Next.js web application called TrackDuel that allows u
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Deployment**: Vercel (serverless)
-- **API Integration**: Spotify Web API
 
 ## Key Features
 - Song vs song battle interface with 30-second previews
@@ -20,7 +19,6 @@ This is a mobile-friendly Next.js web application called TrackDuel that allows u
 
 ## Development Guidelines
 - Prioritize mobile-first responsive design
-- Use Spotify Web API for all music data and previews
 - Implement efficient state management for battle results
 - Ensure all components work seamlessly on touch devices
 - Follow Next.js App Router patterns
@@ -28,7 +26,6 @@ This is a mobile-friendly Next.js web application called TrackDuel that allows u
 - Apply modern UI/UX principles for an engaging experience
 
 ## Architecture Notes
-- Use Next.js API routes for Spotify API integration
 - Implement client-side state management for battle sessions
 - Design for offline capability where possible
 - Optimize for fast loading and smooth animations

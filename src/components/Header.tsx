@@ -10,7 +10,7 @@ export function Header() {
 				<div className="flex items-center gap-2">
 					<h1 className="text-lg md:text-xl font-bold text-white">TrackDuel</h1>
 					<span className="text-xs md:text-sm text-gray-400 hidden sm:inline">
-						🎵 Song Battle App
+						Song Battle App
 					</span>
 				</div>
 

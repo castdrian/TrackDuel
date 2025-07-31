@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAppStore } from '@/stores/useAppStore';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import type { BattleTrack } from '@/types';
 import { Marquee } from './Marquee';
 
@@ -146,6 +147,72 @@ export function BattleArena() {
 		}, 100);
 	};
 
+	// Keyboard shortcuts for battle arena
+	const battleShortcuts = [
+		{
+			key: 'ArrowLeft',
+			description: 'Choose left track',
+			action: () => currentBattle && handleVote(currentBattle.track1.id),
+			context: 'Battle'
+		},
+		{
+			key: 'ArrowRight',
+			description: 'Choose right track',
+			action: () => currentBattle && handleVote(currentBattle.track2.id),
+			context: 'Battle'
+		},
+		{
+			key: 'Space',
+			description: 'Play/pause current track',
+			action: () => {
+				if (playingTrack && currentBattle) {
+					// Stop current track
+					Object.values(audioRefs.current).forEach(audio => {
+						if (audio) {
+							audio.pause();
+							audio.currentTime = 0;
+						}
+					});
+					setPlayingTrack(null);
+				} else if (currentBattle) {
+					// Play the last played track, or default to left track
+					const trackToPlay = playingTrack === currentBattle.track2.id ? 
+						currentBattle.track2 : currentBattle.track1;
+					playTrack(trackToPlay);
+				}
+			},
+			context: 'Battle'
+		},
+		{
+			key: 'a',
+			description: 'Play left track',
+			action: () => currentBattle && playTrack(currentBattle.track1),
+			context: 'Battle'
+		},
+		{
+			key: 'd',
+			description: 'Play right track',
+			action: () => currentBattle && playTrack(currentBattle.track2),
+			context: 'Battle'
+		},
+		{
+			key: 's',
+			description: 'Stop playing',
+			action: () => {
+				Object.values(audioRefs.current).forEach(audio => {
+					if (audio) {
+						audio.pause();
+						audio.currentTime = 0;
+					}
+				});
+				setPlayingTrack(null);
+			},
+			context: 'Battle'
+		}
+	];
+
+	useKeyboardShortcuts(battleShortcuts, !!currentBattle);
+
 	const cancelBattle = () => {
 		// Stop any playing audio
 		Object.values(audioRefs.current).forEach(audio => {
@@ -258,13 +325,18 @@ export function BattleArena() {
 								type="button"
 								onClick={() => playTrack(track)}
 								disabled={!track.preview_url}
-								className="absolute inset-0 bg-black/40 hover:bg-black/60 disabled:bg-black/40 disabled:cursor-not-allowed flex items-center justify-center rounded-lg transition-colors duration-200"
+								className="absolute inset-0 bg-black/40 hover:bg-black/60 disabled:bg-black/40 disabled:cursor-not-allowed flex items-center justify-center rounded-lg transition-colors duration-200 group"
 							>
 								{playingTrack === track.id ? (
 									<PauseIcon className="w-16 h-16 text-white" />
 								) : (
 									<PlayIcon className="w-16 h-16 text-white" />
 								)}
+								
+								{/* Keyboard hint */}
+								<span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+									{index === 0 ? 'A' : 'D'}
+								</span>
 							</button>
 
 							{/* Audio Progress */}
@@ -362,6 +434,21 @@ export function BattleArena() {
 							)}
 						</p>
 					</div>
+				</div>
+			</div>
+
+			{/* Keyboard Shortcuts Hint Bar - Desktop Only */}
+			<div className="bg-white/5 backdrop-blur-lg rounded-xl p-3 mt-4 hidden md:block">
+				<div className="text-center text-xs text-gray-300">
+					<span className="font-semibold text-white">Quick Keys:</span>
+					{' '}
+					<kbd className="bg-white/20 px-1.5 py-0.5 rounded text-xs">A</kbd> / <kbd className="bg-white/20 px-1.5 py-0.5 rounded text-xs">D</kbd> play tracks
+					{' '}•{' '}
+					<kbd className="bg-white/20 px-1.5 py-0.5 rounded text-xs">Space</kbd> play/pause
+					{' '}•{' '}
+					<kbd className="bg-white/20 px-1.5 py-0.5 rounded text-xs">← →</kbd> choose winner
+					{' '}•{' '}
+					<kbd className="bg-white/20 px-1.5 py-0.5 rounded text-xs">/</kbd> help
 				</div>
 			</div>
 		</div>
