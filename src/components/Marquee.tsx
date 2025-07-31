@@ -19,13 +19,13 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 			if (containerRef.current && textRef.current) {
 				// Force a reflow to ensure accurate measurements
 				containerRef.current.offsetHeight;
-				
+
 				const containerWidth = containerRef.current.offsetWidth;
 				const textWidth = textRef.current.scrollWidth;
 
 				// Add a small buffer to prevent unnecessary scrolling for very close widths
 				const buffer = 5;
-				
+
 				if (textWidth > containerWidth + buffer) {
 					setShouldScroll(true);
 					// Calculate duration based on total distance (text width + gap)
@@ -46,7 +46,7 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 			// Debounce resize checks
 			setTimeout(checkOverflow, 50);
 		});
-		
+
 		if (containerRef.current) {
 			resizeObserver.observe(containerRef.current);
 		}
@@ -66,7 +66,7 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 					const containerWidth = containerRef.current.offsetWidth;
 					const textWidth = textRef.current.scrollWidth;
 					const buffer = 5;
-					
+
 					if (textWidth > containerWidth + buffer) {
 						setShouldScroll(true);
 						const totalDistance = textWidth + 32;

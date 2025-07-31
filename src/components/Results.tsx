@@ -11,9 +11,9 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useAppStore } from '@/stores/useAppStore';
 import { Marquee } from './Marquee';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 export function Results() {
 	const [showShareModal, setShowShareModal] = useState(false);
@@ -46,7 +46,7 @@ export function Results() {
 					continueBattle();
 				}
 			},
-			context: 'Results'
+			context: 'Results',
 		},
 		{
 			key: 's',
@@ -54,7 +54,7 @@ export function Results() {
 			action: () => {
 				generateScreenshot();
 			},
-			context: 'Results'
+			context: 'Results',
 		},
 		{
 			key: 't',
@@ -63,16 +63,21 @@ export function Results() {
 				if (currentPlaylist) {
 					const rankings = calculateRankings();
 					const shareableList = rankings
-						.map((track, index) => `${index + 1}. ${track.name} - ${track.artist}`)
+						.map(
+							(track, index) => `${index + 1}. ${track.name} - ${track.artist}`
+						)
 						.join('\n');
-					navigator.clipboard.writeText(shareableList).then(() => {
-						toast.success('Rankings copied to clipboard!');
-					}).catch(() => {
-						toast.error('Failed to copy to clipboard');
-					});
+					navigator.clipboard
+						.writeText(shareableList)
+						.then(() => {
+							toast.success('Rankings copied to clipboard!');
+						})
+						.catch(() => {
+							toast.error('Failed to copy to clipboard');
+						});
 				}
 			},
-			context: 'Results'
+			context: 'Results',
 		},
 		{
 			key: 'b',
@@ -80,8 +85,8 @@ export function Results() {
 			action: () => {
 				setCurrentPlaylist(null);
 			},
-			context: 'Results'
-		}
+			context: 'Results',
+		},
 	];
 
 	useKeyboardShortcuts(resultsShortcuts, !!currentPlaylist);
@@ -104,13 +109,25 @@ export function Results() {
 		setIsGeneratingScreenshot(true);
 		try {
 			// Helper function for rounded rectangles
-			const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+			const roundRect = (
+				ctx: CanvasRenderingContext2D,
+				x: number,
+				y: number,
+				width: number,
+				height: number,
+				radius: number
+			) => {
 				ctx.beginPath();
 				ctx.moveTo(x + radius, y);
 				ctx.lineTo(x + width - radius, y);
 				ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
 				ctx.lineTo(x + width, y + height - radius);
-				ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+				ctx.quadraticCurveTo(
+					x + width,
+					y + height,
+					x + width - radius,
+					y + height
+				);
 				ctx.lineTo(x + radius, y + height);
 				ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
 				ctx.lineTo(x, y + radius);
@@ -134,7 +151,7 @@ export function Results() {
 			canvas.width = 1920;
 			canvas.height = 1080;
 			const ctx = canvas.getContext('2d');
-			
+
 			if (!ctx) {
 				throw new Error('Could not get canvas context');
 			}
@@ -178,7 +195,7 @@ export function Results() {
 			// Pre-load album images
 			const albumImages: { [key: string]: HTMLImageElement } = {};
 			try {
-				const imagePromises = top10.slice(0, 8).map(async (track) => {
+				const imagePromises = top10.slice(0, 8).map(async track => {
 					if (track.image_url) {
 						try {
 							const img = await loadImage(track.image_url);
@@ -193,11 +210,12 @@ export function Results() {
 				console.log('Some album images failed to load, using fallbacks');
 			}
 
-			top10.slice(0, 8).forEach((track, index) => { // Limit to 8 to fit
+			top10.slice(0, 8).forEach((track, index) => {
+				// Limit to 8 to fit
 				const col = index % cols;
 				const row = Math.floor(index / cols);
-				const x = cols === 1 ? 160 : (col === 0 ? 160 : 1010);
-				const y = startY + (row * spacing);
+				const x = cols === 1 ? 160 : col === 0 ? 160 : 1010;
+				const y = startY + row * spacing;
 
 				// Add subtle shadow effect
 				ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
@@ -231,47 +249,66 @@ export function Results() {
 				ctx.fillStyle = '#ffffff';
 				ctx.font = 'bold 60px Arial';
 				ctx.textAlign = 'center';
-				const rankText = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
+				const rankText =
+					index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
 				ctx.fillText(rankText, x + 80, y + 75);
 
 				// Draw album art
 				const albumX = x + 140;
 				const albumY = y + 12;
 				const albumSize = 96;
-				
+
 				if (albumImages[track.id]) {
 					// Draw the actual album image
 					ctx.save();
 					roundRect(ctx, albumX, albumY, albumSize, albumSize, 12);
 					ctx.clip();
-					ctx.drawImage(albumImages[track.id], albumX, albumY, albumSize, albumSize);
+					ctx.drawImage(
+						albumImages[track.id],
+						albumX,
+						albumY,
+						albumSize,
+						albumSize
+					);
 					ctx.restore();
 				} else {
 					// Draw rounded album art placeholder with gradient
-					const gradient = ctx.createLinearGradient(albumX, albumY, albumX + albumSize, albumY + albumSize);
+					const gradient = ctx.createLinearGradient(
+						albumX,
+						albumY,
+						albumX + albumSize,
+						albumY + albumSize
+					);
 					gradient.addColorStop(0, '#374151');
 					gradient.addColorStop(1, '#1f2937');
 					ctx.fillStyle = gradient;
 					roundRect(ctx, albumX, albumY, albumSize, albumSize, 12);
 					ctx.fill();
-					
+
 					// Add music note emoji
 					ctx.fillStyle = '#ffffff';
 					ctx.font = '40px Arial';
 					ctx.textAlign = 'center';
-					ctx.fillText('🎵', albumX + albumSize/2, albumY + albumSize/2 + 10);
+					ctx.fillText(
+						'🎵',
+						albumX + albumSize / 2,
+						albumY + albumSize / 2 + 10
+					);
 				}
 
 				// Draw track info
 				ctx.fillStyle = '#ffffff';
 				ctx.font = 'bold 30px Arial';
 				ctx.textAlign = 'left';
-				const trackName = track.name.substring(0, 20) + (track.name.length > 20 ? '...' : '');
+				const trackName =
+					track.name.substring(0, 20) + (track.name.length > 20 ? '...' : '');
 				ctx.fillText(trackName, x + 260, y + 50);
 
 				ctx.fillStyle = '#d1d5db';
 				ctx.font = '24px Arial';
-				const artistName = track.artist.substring(0, 20) + (track.artist.length > 20 ? '...' : '');
+				const artistName =
+					track.artist.substring(0, 20) +
+					(track.artist.length > 20 ? '...' : '');
 				ctx.fillText(artistName, x + 260, y + 85);
 
 				// Draw stats
@@ -282,28 +319,36 @@ export function Results() {
 
 				ctx.fillStyle = '#9ca3af';
 				ctx.font = '20px Arial';
-				ctx.fillText(`${track.wins}W - ${track.losses}L`, x + itemWidth - 40, y + 85);
+				ctx.fillText(
+					`${track.wins}W - ${track.losses}L`,
+					x + itemWidth - 40,
+					y + 85
+				);
 			});
 
 			// Convert canvas to blob and download
-			canvas.toBlob(blob => {
-				if (!blob) {
-					toast.error('Failed to generate image');
-					return;
-				}
+			canvas.toBlob(
+				blob => {
+					if (!blob) {
+						toast.error('Failed to generate image');
+						return;
+					}
 
-				// Create download link
-				const url = URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `${currentPlaylist.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_rankings.png`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				URL.revokeObjectURL(url);
+					// Create download link
+					const url = URL.createObjectURL(blob);
+					const link = document.createElement('a');
+					link.href = url;
+					link.download = `${currentPlaylist.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_rankings.png`;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+					URL.revokeObjectURL(url);
 
-				toast.success('Screenshot saved to Downloads!');
-			}, 'image/png', 0.95);
+					toast.success('Screenshot saved to Downloads!');
+				},
+				'image/png',
+				0.95
+			);
 		} catch (error) {
 			console.error('Failed to generate screenshot:', error);
 			toast.error('Failed to generate screenshot. Please try again.');

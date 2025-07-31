@@ -3,16 +3,21 @@
 import { useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BattleArena } from '@/components/BattleArena';
+import { Header } from '@/components/Header';
+import { KeyboardHelpModal } from '@/components/KeyboardHelpModal';
 import { PlaylistCreator } from '@/components/PlaylistCreator';
 import { Results } from '@/components/Results';
-import { KeyboardHelpModal } from '@/components/KeyboardHelpModal';
-import { Header } from '@/components/Header';
-import { useAppStore } from '@/stores/useAppStore';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useAppStore } from '@/stores/useAppStore';
 
 export default function Home() {
-	const { currentPlaylist, currentBattle, isHydrated, setHydrated, setCurrentPlaylist } =
-		useAppStore();
+	const {
+		currentPlaylist,
+		currentBattle,
+		isHydrated,
+		setHydrated,
+		setCurrentPlaylist,
+	} = useAppStore();
 	const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
 	useEffect(() => {
@@ -25,7 +30,7 @@ export default function Home() {
 			key: '/',
 			description: 'Show keyboard shortcuts',
 			action: () => setShowKeyboardHelp(true),
-			context: 'Global'
+			context: 'Global',
 		},
 		{
 			key: 'Escape',
@@ -37,14 +42,14 @@ export default function Home() {
 					setCurrentPlaylist(null);
 				}
 			},
-			context: 'Global'
+			context: 'Global',
 		},
 		{
 			key: 'h',
 			description: 'Go to home/playlists',
 			action: () => setCurrentPlaylist(null),
-			context: 'Navigation'
-		}
+			context: 'Navigation',
+		},
 	];
 
 	useKeyboardShortcuts(globalShortcuts, isHydrated);
@@ -77,7 +82,7 @@ export default function Home() {
 		<div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 pt-16 md:pt-20">
 			{/* Fixed Header */}
 			<Header />
-			
+
 			<div className="container mx-auto px-4 py-8">
 				{!currentPlaylist && (
 					<header className="text-center mb-8">
@@ -92,12 +97,12 @@ export default function Home() {
 
 				<main className="max-w-4xl mx-auto">{renderContent()}</main>
 			</div>
-			
-			<KeyboardHelpModal 
+
+			<KeyboardHelpModal
 				isOpen={showKeyboardHelp}
 				onClose={() => setShowKeyboardHelp(false)}
 			/>
-			
+
 			{/* Floating Help Button - Desktop Only */}
 			<button
 				type="button"
@@ -106,18 +111,18 @@ export default function Home() {
 				title="Keyboard Shortcuts (Press /)"
 				aria-label="Show keyboard shortcuts"
 			>
-				<svg 
-					className="w-5 h-5" 
-					fill="currentColor" 
+				<svg
+					className="w-5 h-5"
+					fill="currentColor"
 					viewBox="0 0 24 24"
 					aria-hidden="true"
 				>
 					<title>Keyboard</title>
-					<path d="M20 5H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/>
+					<path d="M20 5H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z" />
 				</svg>
 				<span className="hidden lg:inline text-sm font-medium">Controls</span>
 			</button>
-			
+
 			<Toaster position="top-center" />
 		</div>
 	);

@@ -14,10 +14,10 @@ import { ListBulletIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useAppStore } from '@/stores/useAppStore';
 import type { BattleTrack, Playlist } from '@/types';
 import { Marquee } from './Marquee';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 export function PlaylistCreator() {
 	const [playlistName, setPlaylistName] = useState('');
@@ -358,19 +358,23 @@ export function PlaylistCreator() {
 			key: 'n',
 			description: 'Focus playlist name input',
 			action: () => {
-				const nameInput = document.querySelector('input[placeholder*="playlist name"]') as HTMLInputElement;
+				const nameInput = document.querySelector(
+					'input[placeholder*="playlist name"]'
+				) as HTMLInputElement;
 				nameInput?.focus();
 			},
-			context: 'Playlist'
+			context: 'Playlist',
 		},
 		{
 			key: 'f',
 			description: 'Focus search input',
 			action: () => {
-				const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+				const searchInput = document.querySelector(
+					'input[placeholder*="Search"]'
+				) as HTMLInputElement;
 				searchInput?.focus();
 			},
-			context: 'Playlist'
+			context: 'Playlist',
 		},
 		{
 			key: 'Enter',
@@ -380,7 +384,7 @@ export function PlaylistCreator() {
 					createPlaylist();
 				}
 			},
-			context: 'Playlist'
+			context: 'Playlist',
 		},
 		{
 			key: 'Escape',
@@ -390,8 +394,8 @@ export function PlaylistCreator() {
 					cancelEditing();
 				}
 			},
-			context: 'Playlist'
-		}
+			context: 'Playlist',
+		},
 	];
 
 	useKeyboardShortcuts(playlistShortcuts, true);
