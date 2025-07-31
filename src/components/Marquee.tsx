@@ -17,12 +17,20 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 	useEffect(() => {
 		const checkOverflow = () => {
 			if (containerRef.current && textRef.current) {
+				// Force a reflow to ensure accurate measurements
+				containerRef.current.offsetHeight;
+				
 				const containerWidth = containerRef.current.offsetWidth;
 				const textWidth = textRef.current.scrollWidth;
 
-				if (textWidth > containerWidth) {
+				// Add a small buffer to prevent unnecessary scrolling for very close widths
+				const buffer = 5;
+				
+				if (textWidth > containerWidth + buffer) {
 					setShouldScroll(true);
-					const duration = textWidth / speed;
+					// Calculate duration based on total distance (text width + gap)
+					const totalDistance = textWidth + 32; // 32px for pr-8 gap
+					const duration = totalDistance / speed;
 					setAnimationDuration(duration);
 				} else {
 					setShouldScroll(false);
@@ -30,19 +38,49 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 			}
 		};
 
-		// Check on mount and text change
-		checkOverflow();
+		// Use a timeout to ensure the element is fully rendered
+		const timeoutId = setTimeout(checkOverflow, 0);
 
 		// Check on resize
-		const resizeObserver = new ResizeObserver(checkOverflow);
+		const resizeObserver = new ResizeObserver(() => {
+			// Debounce resize checks
+			setTimeout(checkOverflow, 50);
+		});
+		
 		if (containerRef.current) {
 			resizeObserver.observe(containerRef.current);
 		}
 
 		return () => {
+			clearTimeout(timeoutId);
 			resizeObserver.disconnect();
 		};
 	}, [speed]);
+
+	// Re-check overflow when text changes
+	useEffect(() => {
+		if (containerRef.current && textRef.current) {
+			// Small delay to ensure DOM has updated
+			const timeoutId = setTimeout(() => {
+				if (containerRef.current && textRef.current) {
+					const containerWidth = containerRef.current.offsetWidth;
+					const textWidth = textRef.current.scrollWidth;
+					const buffer = 5;
+					
+					if (textWidth > containerWidth + buffer) {
+						setShouldScroll(true);
+						const totalDistance = textWidth + 32;
+						const duration = totalDistance / speed;
+						setAnimationDuration(duration);
+					} else {
+						setShouldScroll(false);
+					}
+				}
+			}, 10);
+
+			return () => clearTimeout(timeoutId);
+		}
+	}, [speed]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<div
@@ -56,6 +94,7 @@ export function Marquee({ text, className = '', speed = 50 }: MarqueeProps) {
 						animationDuration: `${animationDuration}s`,
 						animationTimingFunction: 'linear',
 						animationIterationCount: 'infinite',
+						animationFillMode: 'forwards',
 					}}
 				>
 					<span ref={textRef} className="flex-shrink-0 pr-8">
