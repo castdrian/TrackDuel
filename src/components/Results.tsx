@@ -148,54 +148,52 @@ export function Results() {
 
 			// Create canvas directly instead of using html2canvas
 			const canvas = document.createElement('canvas');
-			canvas.width = 1920;
-			canvas.height = 1080;
+			canvas.width = 1080; // 9:16 aspect ratio
+			canvas.height = 1920;
 			const ctx = canvas.getContext('2d');
-
+			
 			if (!ctx) {
 				throw new Error('Could not get canvas context');
 			}
 
 			// Fill background with gradient
-			const bgGradient = ctx.createLinearGradient(0, 0, 1920, 1080);
+			const bgGradient = ctx.createLinearGradient(0, 0, 1080, 1920);
 			bgGradient.addColorStop(0, '#581c87');
 			bgGradient.addColorStop(0.5, '#1e3a8a');
 			bgGradient.addColorStop(1, '#312e81');
 			ctx.fillStyle = bgGradient;
-			ctx.fillRect(0, 0, 1920, 1080);
+			ctx.fillRect(0, 0, 1080, 1920);
 
 			// Set font
 			ctx.fillStyle = '#ffffff';
 			ctx.textAlign = 'center';
 
 			// Draw trophy emoji (simplified)
-			ctx.font = '80px Arial';
-			ctx.fillText('🏆', 960, 100);
+			ctx.font = '60px Arial';
+			ctx.fillText('🏆', 540, 80);
 
 			// Draw header
-			ctx.font = 'bold 72px Arial';
-			ctx.fillText(currentPlaylist.name.substring(0, 30), 960, 180);
+			ctx.font = 'bold 48px Arial';
+			ctx.fillText(currentPlaylist.name.substring(0, 35), 540, 140);
 
-			ctx.font = '40px Arial';
+			ctx.font = '28px Arial';
 			ctx.fillStyle = '#d1d5db';
-			ctx.fillText(`Top ${Math.min(10, rankings.length)} Rankings`, 960, 230);
+			ctx.fillText(`Top ${Math.min(15, rankings.length)} Rankings`, 540, 180);
 
-			ctx.font = '30px Arial';
+			ctx.font = '22px Arial';
 			ctx.fillStyle = '#9ca3af';
-			ctx.fillText(`Based on ${totalBattles} battles`, 960, 270);
+			ctx.fillText(`Based on ${totalBattles} battles`, 540, 210);
 
-			// Draw rankings
-			const top10 = rankings.slice(0, 10);
-			const cols = top10.length <= 5 ? 1 : 2;
-			const itemWidth = cols === 1 ? 1600 : 750;
-			const itemHeight = 120;
-			const startY = 350;
-			const spacing = 140;
-
-			// Pre-load album images
+		// Draw rankings - show up to 15 tracks in single column
+		const topTracks = rankings.slice(0, 15);
+		const itemHeight = 100;
+		const itemSpacing = 10;
+		const padding = 50;
+		const headerHeight = 260;
+		const canvasWidth = 1080;			// Pre-load album images for top 15 tracks
 			const albumImages: { [key: string]: HTMLImageElement } = {};
 			try {
-				const imagePromises = top10.slice(0, 8).map(async track => {
+				const imagePromises = topTracks.map(async (track) => {
 					if (track.image_url) {
 						try {
 							const img = await loadImage(track.image_url);
@@ -210,123 +208,102 @@ export function Results() {
 				console.log('Some album images failed to load, using fallbacks');
 			}
 
-			top10.slice(0, 8).forEach((track, index) => {
-				// Limit to 8 to fit
-				const col = index % cols;
-				const row = Math.floor(index / cols);
-				const x = cols === 1 ? 160 : col === 0 ? 160 : 1010;
-				const y = startY + row * spacing;
+		topTracks.forEach((track, index) => {
+			const y = headerHeight + padding + index * (itemHeight + itemSpacing);
+			const x = padding;
+			const itemWidth = canvasWidth - 2 * padding;
 
-				// Add subtle shadow effect
-				ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-				roundRect(ctx, x + 4, y + 4, itemWidth, itemHeight, 24);
-				ctx.fill();
-
-				// Draw rounded card background
-				ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+			// Draw track background with rounded corners
+			if (index % 2 === 0) {
+				ctx.fillStyle = 'rgba(75, 85, 99, 0.3)';
 				roundRect(ctx, x, y, itemWidth, itemHeight, 24);
 				ctx.fill();
+			} else {
+				ctx.strokeStyle = 'rgba(156, 163, 175, 0.3)';
+				ctx.lineWidth = 2;
+				roundRect(ctx, x, y, itemWidth, itemHeight, 24);
+				ctx.stroke();
+			}
 
-				// Draw border for top 3 with rounded corners
-				if (index === 0) {
-					ctx.strokeStyle = '#fbbf24';
-					ctx.lineWidth = 4;
-					roundRect(ctx, x, y, itemWidth, itemHeight, 24);
-					ctx.stroke();
-				} else if (index === 1) {
-					ctx.strokeStyle = '#d1d5db';
-					ctx.lineWidth = 2;
-					roundRect(ctx, x, y, itemWidth, itemHeight, 24);
-					ctx.stroke();
-				} else if (index === 2) {
-					ctx.strokeStyle = '#fb923c';
-					ctx.lineWidth = 2;
-					roundRect(ctx, x, y, itemWidth, itemHeight, 24);
-					ctx.stroke();
-				}
+			// Draw rank
+			ctx.fillStyle = '#ffffff';
+			ctx.font = 'bold 48px Arial';
+			ctx.textAlign = 'center';
+			const rankText = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
+			ctx.fillText(rankText, x + 60, y + 60);
 
-				// Draw rank
-				ctx.fillStyle = '#ffffff';
-				ctx.font = 'bold 60px Arial';
-				ctx.textAlign = 'center';
-				const rankText =
-					index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
-				ctx.fillText(rankText, x + 80, y + 75);
+			// Draw album art
+			const albumX = x + 120;
+			const albumY = y + 10;
+			const albumSize = 80;
 
-				// Draw album art
-				const albumX = x + 140;
-				const albumY = y + 12;
-				const albumSize = 96;
-
-				if (albumImages[track.id]) {
-					// Draw the actual album image
-					ctx.save();
-					roundRect(ctx, albumX, albumY, albumSize, albumSize, 12);
-					ctx.clip();
-					ctx.drawImage(
-						albumImages[track.id],
-						albumX,
-						albumY,
-						albumSize,
-						albumSize
-					);
-					ctx.restore();
-				} else {
-					// Draw rounded album art placeholder with gradient
-					const gradient = ctx.createLinearGradient(
-						albumX,
-						albumY,
-						albumX + albumSize,
-						albumY + albumSize
-					);
-					gradient.addColorStop(0, '#374151');
-					gradient.addColorStop(1, '#1f2937');
-					ctx.fillStyle = gradient;
-					roundRect(ctx, albumX, albumY, albumSize, albumSize, 12);
-					ctx.fill();
-
-					// Add music note emoji
-					ctx.fillStyle = '#ffffff';
-					ctx.font = '40px Arial';
-					ctx.textAlign = 'center';
-					ctx.fillText(
-						'🎵',
-						albumX + albumSize / 2,
-						albumY + albumSize / 2 + 10
-					);
-				}
-
-				// Draw track info
-				ctx.fillStyle = '#ffffff';
-				ctx.font = 'bold 30px Arial';
-				ctx.textAlign = 'left';
-				const trackName =
-					track.name.substring(0, 20) + (track.name.length > 20 ? '...' : '');
-				ctx.fillText(trackName, x + 260, y + 50);
-
-				ctx.fillStyle = '#d1d5db';
-				ctx.font = '24px Arial';
-				const artistName =
-					track.artist.substring(0, 20) +
-					(track.artist.length > 20 ? '...' : '');
-				ctx.fillText(artistName, x + 260, y + 85);
-
-				// Draw stats
-				ctx.fillStyle = '#ffffff';
-				ctx.font = 'bold 40px Arial';
-				ctx.textAlign = 'right';
-				ctx.fillText(`${getWinPercentage(track)}%`, x + itemWidth - 40, y + 50);
-
-				ctx.fillStyle = '#9ca3af';
-				ctx.font = '20px Arial';
-				ctx.fillText(
-					`${track.wins}W - ${track.losses}L`,
-					x + itemWidth - 40,
-					y + 85
+			if (albumImages[track.id]) {
+				// Draw the actual album image
+				ctx.save();
+				roundRect(ctx, albumX, albumY, albumSize, albumSize, 12);
+				ctx.clip();
+				ctx.drawImage(
+					albumImages[track.id],
+					albumX,
+					albumY,
+					albumSize,
+					albumSize
 				);
-			});
+				ctx.restore();
+			} else {
+				// Draw rounded album art placeholder with gradient
+				const gradient = ctx.createLinearGradient(
+					albumX,
+					albumY,
+					albumX + albumSize,
+					albumY + albumSize
+				);
+				gradient.addColorStop(0, '#374151');
+				gradient.addColorStop(1, '#1f2937');
+				ctx.fillStyle = gradient;
+				roundRect(ctx, albumX, albumY, albumSize, albumSize, 12);
+				ctx.fill();
 
-			// Convert canvas to blob and download
+				// Add music note emoji
+				ctx.fillStyle = '#ffffff';
+				ctx.font = '40px Arial';
+				ctx.textAlign = 'center';
+				ctx.fillText(
+					'🎵',
+					albumX + albumSize / 2,
+					albumY + albumSize / 2 + 10
+				);
+			}
+
+			// Draw track info
+			ctx.fillStyle = '#ffffff';
+			ctx.font = 'bold 30px Arial';
+			ctx.textAlign = 'left';
+			const trackName =
+				track.name.substring(0, 20) + (track.name.length > 20 ? '...' : '');
+			ctx.fillText(trackName, x + 260, y + 50);
+
+			ctx.fillStyle = '#d1d5db';
+			ctx.font = '24px Arial';
+			const artistName =
+				track.artist.substring(0, 20) +
+				(track.artist.length > 20 ? '...' : '');
+			ctx.fillText(artistName, x + 260, y + 85);
+
+			// Draw stats
+			ctx.fillStyle = '#ffffff';
+			ctx.font = 'bold 40px Arial';
+			ctx.textAlign = 'right';
+			ctx.fillText(`${getWinPercentage(track)}%`, x + itemWidth - 40, y + 50);
+
+			ctx.fillStyle = '#9ca3af';
+			ctx.font = '20px Arial';
+			ctx.fillText(
+				`${track.wins}W - ${track.losses}L`,
+				x + itemWidth - 40,
+				y + 85
+			);
+		});			// Convert canvas to blob and download
 			canvas.toBlob(
 				blob => {
 					if (!blob) {
