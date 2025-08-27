@@ -110,8 +110,8 @@ export function BattleArena() {
 					[trackId]: 0,
 				}));
 
-				// Handle autoplay sequence
-				if (autoplayEnabled && currentBattle) {
+				// Handle autoplay sequence - loop continuously when enabled
+				if (autoplayEnabled && currentBattle && autoplaySequence !== 'complete') {
 					if (trackId === currentBattle.track1.id && autoplaySequence === 'left') {
 						// Left track finished, play right track
 						setAutoplaySequence('right');
@@ -119,8 +119,11 @@ export function BattleArena() {
 							setTimeout(() => playTrack(currentBattle.track2, true), 1000);
 						}
 					} else if (trackId === currentBattle.track2.id && autoplaySequence === 'right') {
-						// Right track finished, autoplay sequence complete
-						setAutoplaySequence('complete');
+						// Right track finished, loop back to left track
+						setAutoplaySequence('left');
+						if (currentBattle.track1.preview_url) {
+							setTimeout(() => playTrack(currentBattle.track1, true), 1000);
+						}
 					}
 				}
 			});
@@ -339,7 +342,15 @@ export function BattleArena() {
 			{/* Autoplay Controls */}
 			<div className="flex justify-center mb-4">
 				<div className="flex items-center gap-3 bg-white/10 backdrop-blur-lg rounded-xl px-4 py-2">
-					<span className="text-sm text-gray-300">Autoplay Previews</span>
+					<div className="flex items-center gap-2">
+						<span className="text-sm text-gray-300">Autoplay</span>
+						{autoplayEnabled && autoplaySequence !== 'complete' && (
+							<div className="flex items-center gap-1">
+								<div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+								<span className="text-xs text-purple-300">Active</span>
+							</div>
+						)}
+					</div>
 					<button
 						type="button"
 						onClick={() => setAutoplayEnabled(!autoplayEnabled)}
