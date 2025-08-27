@@ -178,19 +178,19 @@ export function Results() {
 
 			ctx.font = '28px Arial';
 			ctx.fillStyle = '#d1d5db';
-			ctx.fillText(`Top ${Math.min(15, rankings.length)} Rankings`, 540, 180);
+			ctx.fillText(`Top ${Math.min(10, rankings.length)} Rankings`, 540, 180);
 
 			ctx.font = '22px Arial';
 			ctx.fillStyle = '#9ca3af';
 			ctx.fillText(`Based on ${totalBattles} battles`, 540, 210);
 
-		// Draw rankings - show up to 15 tracks in single column
-		const topTracks = rankings.slice(0, 15);
-		const itemHeight = 100;
-		const itemSpacing = 10;
-		const padding = 50;
-		const headerHeight = 260;
-		const canvasWidth = 1080;			// Pre-load album images for top 15 tracks
+		// Draw rankings - show top 10 tracks in single column
+		const topTracks = rankings.slice(0, 10);
+		const itemHeight = 90;
+		const itemSpacing = 8;
+		const padding = 40;
+		const headerHeight = 240;
+		const canvasWidth = 1080;			// Pre-load album images for top 10 tracks
 			const albumImages: { [key: string]: HTMLImageElement } = {};
 			try {
 				const imagePromises = topTracks.map(async (track) => {
@@ -227,15 +227,15 @@ export function Results() {
 
 			// Draw rank
 			ctx.fillStyle = '#ffffff';
-			ctx.font = 'bold 48px Arial';
+			ctx.font = 'bold 40px Arial';
 			ctx.textAlign = 'center';
 			const rankText = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
-			ctx.fillText(rankText, x + 60, y + 60);
+			ctx.fillText(rankText, x + 50, y + 55);
 
 			// Draw album art
-			const albumX = x + 120;
-			const albumY = y + 10;
-			const albumSize = 80;
+			const albumX = x + 100;
+			const albumY = y + 8;
+			const albumSize = 74;
 
 			if (albumImages[track.id]) {
 				// Draw the actual album image
@@ -266,42 +266,42 @@ export function Results() {
 
 				// Add music note emoji
 				ctx.fillStyle = '#ffffff';
-				ctx.font = '40px Arial';
+				ctx.font = '36px Arial';
 				ctx.textAlign = 'center';
 				ctx.fillText(
 					'🎵',
 					albumX + albumSize / 2,
-					albumY + albumSize / 2 + 10
+					albumY + albumSize / 2 + 8
 				);
 			}
 
 			// Draw track info
 			ctx.fillStyle = '#ffffff';
-			ctx.font = 'bold 30px Arial';
+			ctx.font = 'bold 28px Arial';
 			ctx.textAlign = 'left';
 			const trackName =
-				track.name.substring(0, 20) + (track.name.length > 20 ? '...' : '');
-			ctx.fillText(trackName, x + 260, y + 50);
+				track.name.substring(0, 22) + (track.name.length > 22 ? '...' : '');
+			ctx.fillText(trackName, x + 190, y + 42);
 
 			ctx.fillStyle = '#d1d5db';
-			ctx.font = '24px Arial';
+			ctx.font = '22px Arial';
 			const artistName =
-				track.artist.substring(0, 20) +
-				(track.artist.length > 20 ? '...' : '');
-			ctx.fillText(artistName, x + 260, y + 85);
+				track.artist.substring(0, 22) +
+				(track.artist.length > 22 ? '...' : '');
+			ctx.fillText(artistName, x + 190, y + 70);
 
 			// Draw stats
 			ctx.fillStyle = '#ffffff';
-			ctx.font = 'bold 40px Arial';
+			ctx.font = 'bold 36px Arial';
 			ctx.textAlign = 'right';
-			ctx.fillText(`${getWinPercentage(track)}%`, x + itemWidth - 40, y + 50);
+			ctx.fillText(`${getWinPercentage(track)}%`, x + itemWidth - 30, y + 42);
 
 			ctx.fillStyle = '#9ca3af';
-			ctx.font = '20px Arial';
+			ctx.font = '18px Arial';
 			ctx.fillText(
 				`${track.wins}W - ${track.losses}L`,
-				x + itemWidth - 40,
-				y + 85
+				x + itemWidth - 30,
+				y + 70
 			);
 		});			// Convert canvas to blob and download
 			canvas.toBlob(
