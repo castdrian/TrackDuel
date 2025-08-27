@@ -21,7 +21,7 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpProps) {
 		{ key: '→', description: 'Choose right track', context: 'Battle' },
 		{
 			key: 'Space',
-			description: 'Play/pause current track',
+			description: 'Play/pause (preserves position)',
 			context: 'Battle',
 		},
 		{ key: 'a', description: 'Play left track', context: 'Battle' },

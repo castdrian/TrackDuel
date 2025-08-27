@@ -70,11 +70,11 @@ export function BattleArena() {
 			setAutoplaySequence('complete');
 		}
 
-		// Stop any currently playing track
+		// Pause any currently playing track but preserve their positions
 		Object.values(audioRefs.current).forEach(audio => {
 			if (audio) {
 				audio.pause();
-				audio.currentTime = 0;
+				// Don't reset currentTime - let users resume from where they left off
 			}
 		});
 
@@ -201,14 +201,13 @@ export function BattleArena() {
 		},
 		{
 			key: 'Space',
-			description: 'Play/pause current track',
+			description: 'Play/pause (preserves position)',
 			action: () => {
 				if (playingTrack && currentBattle) {
-					// Stop current track
+					// Pause current track but preserve position
 					Object.values(audioRefs.current).forEach(audio => {
 						if (audio) {
 							audio.pause();
-							audio.currentTime = 0;
 						}
 					});
 					setPlayingTrack(null);
