@@ -19,6 +19,8 @@ import { Marquee } from './Marquee';
 export function BattleArena() {
 	const [playingTrack, setPlayingTrack] = useState<string | null>(null);
 	const [currentTime, setCurrentTime] = useState<Record<string, number>>({});
+	const [autoplayEnabled, setAutoplayEnabled] = useState(true);
+	const [autoplaySequence, setAutoplaySequence] = useState<'left' | 'right' | 'complete'>('left');
 	const audioRefs = useRef<Record<string, HTMLAudioElement>>({});
 
 	const {
@@ -38,13 +40,35 @@ export function BattleArena() {
 		}
 	}, [currentBattle, generateNextBattle, setCurrentBattle]);
 
-	const playTrack = (track: BattleTrack) => {
+	// Autoplay effect - plays left track first, then right track after it ends
+	useEffect(() => {
+		if (!currentBattle || !autoplayEnabled) return;
+
+		// Reset autoplay sequence for new battle
+		setAutoplaySequence('left');
+		
+		// Small delay to ensure audio elements are ready
+		const autoplayTimer = setTimeout(() => {
+			if (currentBattle.track1.preview_url) {
+				playTrack(currentBattle.track1, true);
+			}
+		}, 500);
+
+		return () => clearTimeout(autoplayTimer);
+	}, [currentBattle, autoplayEnabled]);
+
+	const playTrack = (track: BattleTrack, isAutoplay = false) => {
 		console.log(
 			'Playing track:',
 			track.name,
 			'Preview URL:',
 			track.preview_url
 		);
+
+		// If this is a manual play (not autoplay), stop the autoplay sequence
+		if (!isAutoplay) {
+			setAutoplaySequence('complete');
+		}
 
 		// Stop any currently playing track
 		Object.values(audioRefs.current).forEach(audio => {
@@ -85,6 +109,20 @@ export function BattleArena() {
 					...prev,
 					[trackId]: 0,
 				}));
+
+				// Handle autoplay sequence
+				if (autoplayEnabled && currentBattle) {
+					if (trackId === currentBattle.track1.id && autoplaySequence === 'left') {
+						// Left track finished, play right track
+						setAutoplaySequence('right');
+						if (currentBattle.track2.preview_url) {
+							setTimeout(() => playTrack(currentBattle.track2, true), 1000);
+						}
+					} else if (trackId === currentBattle.track2.id && autoplaySequence === 'right') {
+						// Right track finished, autoplay sequence complete
+						setAutoplaySequence('complete');
+					}
+				}
 			});
 
 			audio.addEventListener('error', e => {
@@ -211,6 +249,12 @@ export function BattleArena() {
 			},
 			context: 'Battle',
 		},
+		{
+			key: 'q',
+			description: 'Toggle autoplay',
+			action: () => setAutoplayEnabled(!autoplayEnabled),
+			context: 'Battle',
+		},
 	];
 
 	useKeyboardShortcuts(battleShortcuts, !!currentBattle);
@@ -290,6 +334,31 @@ export function BattleArena() {
 						className="bg-green-400 h-2 rounded-full transition-all duration-300"
 						style={{ width: `${(battleNumber / totalBattles) * 100}%` }}
 					/>
+				</div>
+			</div>
+
+			{/* Autoplay Controls */}
+			<div className="flex justify-center mb-4">
+				<div className="flex items-center gap-3 bg-white/10 backdrop-blur-lg rounded-xl px-4 py-2">
+					<span className="text-sm text-gray-300">Autoplay Previews</span>
+					<button
+						type="button"
+						onClick={() => setAutoplayEnabled(!autoplayEnabled)}
+						className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800 group ${
+							autoplayEnabled ? 'bg-purple-600' : 'bg-gray-600'
+						}`}
+						title={`${autoplayEnabled ? 'Disable' : 'Enable'} autoplay previews (Q)`}
+					>
+						<span
+							className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+								autoplayEnabled ? 'translate-x-6' : 'translate-x-1'
+							}`}
+						/>
+						{/* Keyboard hint */}
+						<span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+							Press Q
+						</span>
+					</button>
 				</div>
 			</div>
 

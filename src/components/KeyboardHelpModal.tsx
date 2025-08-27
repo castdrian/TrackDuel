@@ -27,6 +27,7 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpProps) {
 		{ key: 'a', description: 'Play left track', context: 'Battle' },
 		{ key: 'd', description: 'Play right track', context: 'Battle' },
 		{ key: 's', description: 'Stop playing', context: 'Battle' },
+		{ key: 'q', description: 'Toggle autoplay', context: 'Battle' },
 
 		// Playlist
 		{ key: 'n', description: 'Focus playlist name input', context: 'Playlist' },
