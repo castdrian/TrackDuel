@@ -30,6 +30,24 @@ export function BattleArena() {
 		setCurrentBattle,
 		currentPlaylist,
 	} = useAppStore();
+	
+	// Use refs to capture latest values in event listeners
+	const autoplayEnabledRef = useRef(autoplayEnabled);
+	const autoplaySequenceRef = useRef(autoplaySequence);
+	const currentBattleRef = useRef(currentBattle);
+	
+	// Update refs when state changes
+	useEffect(() => {
+		autoplayEnabledRef.current = autoplayEnabled;
+	}, [autoplayEnabled]);
+	
+	useEffect(() => {
+		autoplaySequenceRef.current = autoplaySequence;
+	}, [autoplaySequence]);
+	
+	useEffect(() => {
+		currentBattleRef.current = currentBattle;
+	}, [currentBattle]);
 
 	useEffect(() => {
 		if (!currentBattle) {
@@ -82,35 +100,50 @@ export function BattleArena() {
 			});
 
 			audio.addEventListener('ended', () => {
-				console.log('Track ended:', track.name, 'Current sequence:', autoplaySequence);
+				console.log('Track ended:', track.name);
 				setPlayingTrack(null);
 				setCurrentTime(prev => ({
 					...prev,
 					[track.id]: 0,
 				}));
 
-				// Handle autoplay sequence with current battle check
-				if (autoplayEnabled && currentBattle && autoplaySequence !== 'complete') {
-					if (track.id === currentBattle.track1.id && autoplaySequence === 'left') {
-						console.log('Left track finished, switching to right');
-						setAutoplaySequence('right');
-						if (currentBattle.track2.preview_url) {
-							setTimeout(() => {
-								console.log('Playing right track');
-								playTrack(currentBattle.track2, true);
-							}, 300);
-						}
-					} else if (track.id === currentBattle.track2.id && autoplaySequence === 'right') {
-						console.log('Right track finished, looping back to left');
-						setAutoplaySequence('left');
-						if (currentBattle.track1.preview_url) {
-							setTimeout(() => {
-								console.log('Looping back to left track');
-								playTrack(currentBattle.track1, true);
-							}, 300);
+				// Handle autoplay sequence with current state values from refs
+				setTimeout(() => {
+					const currentAutoplayEnabled = autoplayEnabledRef.current;
+					const currentSequence = autoplaySequenceRef.current;
+					const currentBattleState = currentBattleRef.current;
+					
+					console.log('Autoplay check:', {
+						enabled: currentAutoplayEnabled,
+						sequence: currentSequence,
+						hasBattle: !!currentBattleState,
+						trackId: track.id,
+						leftTrackId: currentBattleState?.track1.id,
+						rightTrackId: currentBattleState?.track2.id
+					});
+					
+					if (currentAutoplayEnabled && currentBattleState && currentSequence !== 'complete') {
+						if (track.id === currentBattleState.track1.id && currentSequence === 'left') {
+							console.log('Left track finished, switching to right');
+							setAutoplaySequence('right');
+							if (currentBattleState.track2.preview_url) {
+								setTimeout(() => {
+									console.log('Playing right track');
+									playTrack(currentBattleState.track2, true);
+								}, 300);
+							}
+						} else if (track.id === currentBattleState.track2.id && currentSequence === 'right') {
+							console.log('Right track finished, looping back to left');
+							setAutoplaySequence('left');
+							if (currentBattleState.track1.preview_url) {
+								setTimeout(() => {
+									console.log('Looping back to left track');
+									playTrack(currentBattleState.track1, true);
+								}, 300);
+							}
 						}
 					}
-				}
+				}, 100);
 			});
 
 			audio.addEventListener('error', e => {
@@ -137,7 +170,7 @@ export function BattleArena() {
 		return () => {
 			clearTimeout(autoplayTimer);
 		};
-	}, [currentBattle, autoplayEnabled, autoplaySequence]);
+	}, [currentBattle, autoplayEnabled]);
 
 	const playTrack = (track: BattleTrack, isAutoplay = false) => {
 		console.log(
@@ -154,7 +187,7 @@ export function BattleArena() {
 			setAutoplaySequence('complete');
 		}
 
-		// Pause any currently playing track
+		// Stop any currently playing track
 		Object.values(audioRefs.current).forEach(audio => {
 			if (audio && !audio.paused) {
 				audio.pause();
@@ -168,8 +201,23 @@ export function BattleArena() {
 
 		const trackId = track.id;
 
+		// If clicking the same track that's already "playing" (but might be paused), toggle it
 		if (playingTrack === trackId) {
-			setPlayingTrack(null);
+			const audio = audioRefs.current[trackId];
+			if (audio) {
+				if (audio.paused) {
+					// If paused, resume playing
+					audio.play().then(() => {
+						console.log('Resumed track:', track.name);
+					}).catch(error => {
+						console.error('Error resuming audio:', error);
+					});
+				} else {
+					// If playing, pause it
+					audio.pause();
+					setPlayingTrack(null);
+				}
+			}
 			return;
 		}
 
