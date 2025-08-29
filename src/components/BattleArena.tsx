@@ -47,7 +47,23 @@ export function BattleArena() {
 		// Reset autoplay sequence for new battle
 		setAutoplaySequence('left');
 		
-		// Small delay to ensure audio elements are ready
+		// Preload both tracks for better mobile compatibility
+		const preloadTracks = async () => {
+			if (currentBattle.track1.preview_url && !audioRefs.current[currentBattle.track1.id]) {
+				const audio1 = new Audio(currentBattle.track1.preview_url);
+				audio1.preload = 'auto';
+				audio1.load();
+			}
+			if (currentBattle.track2.preview_url && !audioRefs.current[currentBattle.track2.id]) {
+				const audio2 = new Audio(currentBattle.track2.preview_url);
+				audio2.preload = 'auto';
+				audio2.load();
+			}
+		};
+		
+		preloadTracks();
+		
+		// Start autoplay after a small delay
 		const autoplayTimer = setTimeout(() => {
 			if (currentBattle.track1.preview_url) {
 				playTrack(currentBattle.track1, true);
@@ -94,7 +110,8 @@ export function BattleArena() {
 		if (!audioRefs.current[trackId]) {
 			const audio = new Audio(track.preview_url);
 			audio.volume = 0.7;
-			audio.preload = 'metadata';
+			audio.preload = 'auto'; // Changed from 'metadata' to 'auto' for better mobile performance
+			audio.crossOrigin = 'anonymous'; // Better mobile compatibility
 
 			audio.addEventListener('timeupdate', () => {
 				setCurrentTime(prev => ({
@@ -116,13 +133,13 @@ export function BattleArena() {
 						// Left track finished, play right track
 						setAutoplaySequence('right');
 						if (currentBattle.track2.preview_url) {
-							setTimeout(() => playTrack(currentBattle.track2, true), 1000);
+							setTimeout(() => playTrack(currentBattle.track2, true), 500); // Reduced delay for smoother experience
 						}
 					} else if (trackId === currentBattle.track2.id && autoplaySequence === 'right') {
 						// Right track finished, loop back to left track
 						setAutoplaySequence('left');
 						if (currentBattle.track1.preview_url) {
-							setTimeout(() => playTrack(currentBattle.track1, true), 1000);
+							setTimeout(() => playTrack(currentBattle.track1, true), 500); // Reduced delay for smoother experience
 						}
 					}
 				}
@@ -133,10 +150,16 @@ export function BattleArena() {
 				setPlayingTrack(null);
 			});
 
+			// Load the audio immediately for mobile Safari
+			audio.load();
+
 			audioRefs.current[trackId] = audio;
 		}
 
 		const audio = audioRefs.current[trackId];
+
+		// Reset to beginning for consistent playback
+		audio.currentTime = 0;
 
 		// For mobile compatibility, handle the promise gracefully
 		const playPromise = audio.play();
@@ -148,8 +171,11 @@ export function BattleArena() {
 				})
 				.catch(error => {
 					console.error('Error playing audio:', error);
-					// Only show toast on first interaction error, not subsequent ones
-					if (error.name === 'NotAllowedError') {
+					// If autoplay fails on mobile, stop the autoplay sequence
+					if (isAutoplay && error.name === 'NotAllowedError') {
+						console.log('Autoplay blocked, stopping sequence');
+						setAutoplaySequence('complete');
+					} else if (error.name === 'NotAllowedError') {
 						toast.error('Tap again to play audio', { duration: 2000 });
 					}
 				});
@@ -254,12 +280,26 @@ export function BattleArena() {
 		{
 			key: 'q',
 			description: 'Toggle autoplay',
-			action: () => setAutoplayEnabled(!autoplayEnabled),
+			action: () => toggleAutoplay(),
 			context: 'Battle',
 		},
 	];
 
 	useKeyboardShortcuts(battleShortcuts, !!currentBattle);
+
+	const toggleAutoplay = () => {
+		const newState = !autoplayEnabled;
+		setAutoplayEnabled(newState);
+		
+		// Reset autoplay sequence when enabling
+		if (newState) {
+			setAutoplaySequence('left');
+			// Start autoplay if no track is currently playing
+			if (!playingTrack && currentBattle?.track1.preview_url) {
+				setTimeout(() => playTrack(currentBattle.track1, true), 500);
+			}
+		}
+	};
 
 	const cancelBattle = () => {
 		// Stop any playing audio
@@ -342,22 +382,14 @@ export function BattleArena() {
 			{/* Autoplay Controls */}
 			<div className="flex justify-center mb-4">
 				<div className="flex items-center gap-3 bg-white/10 backdrop-blur-lg rounded-xl px-4 py-2">
-					<div className="flex items-center gap-2">
-						<span className="text-sm text-gray-300">Autoplay</span>
-						{autoplayEnabled && autoplaySequence !== 'complete' && (
-							<div className="flex items-center gap-1">
-								<div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-								<span className="text-xs text-purple-300">Active</span>
-							</div>
-						)}
-					</div>
+					<span className="text-sm text-gray-300">Autoplay Loop</span>
 					<button
 						type="button"
-						onClick={() => setAutoplayEnabled(!autoplayEnabled)}
+						onClick={toggleAutoplay}
 						className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800 group ${
 							autoplayEnabled ? 'bg-purple-600' : 'bg-gray-600'
 						}`}
-						title={`${autoplayEnabled ? 'Disable' : 'Enable'} autoplay previews (Q)`}
+						title={`${autoplayEnabled ? 'Disable' : 'Enable'} autoplay loop (Q)`}
 					>
 						<span
 							className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
